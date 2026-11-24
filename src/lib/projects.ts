@@ -18,3 +18,8 @@ export const spriteTransition = (p: Project) => `sprite-${p.id}`;
 
 export const plural = (n: number, word: string) =>
   `${n} ${word}${n === 1 ? "" : "s"}`;
+
+/** Site accent; also the fallback for projects without their own colour. */
+export const SITE_ACCENT = "#b6f36a";
+
+export const projectAccent = (p: Project) => p.data.accent ?? SITE_ACCENT;

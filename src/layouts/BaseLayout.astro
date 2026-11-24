@@ -8,19 +8,28 @@ import "../styles/global.css";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import { SITE } from "../config";
+import { SITE_ACCENT } from "../lib/projects";
 
 interface Props {
   title?: string;
   description?: string;
+  /** Page colour (a project's accent). Defaults to the site accent. */
+  accent?: string;
 }
 
-const { title, description = SITE.description } = Astro.props;
+const { title, description = SITE.description, accent } = Astro.props;
+const pageAccent = accent ?? SITE_ACCENT;
+// On a project page its colour becomes the accent; accent-ink (accent text
+// on paper) is a darkened version of it.
+const accentStyle = accent
+  ? `--color-accent: ${accent}; --color-accent-ink: color-mix(in oklab, ${accent} 45%, #000);`
+  : undefined;
 const fullTitle = title ? `${title} · ${SITE.domain}` : `${SITE.name} · ${SITE.domain}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-accent={pageAccent} style={accentStyle}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -35,11 +44,33 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta name="generator" content={Astro.generator} />
+    <!-- Runs before first paint:
+         1. background drift phase from the wall clock, so it continues across
+            pages instead of restarting on every navigation;
+         2. --live-accent (background + cursor colour) starts at the colour of
+            the previous page and then fades to this page's colour. -->
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        root.style.setProperty("--drift-t", `-${(Date.now() / 1000) % 3600}s`);
+        const target = root.dataset.accent;
+        let prev = null;
+        try {
+          prev = sessionStorage.getItem("live-accent");
+          sessionStorage.setItem("live-accent", target);
+        } catch {}
+        root.style.setProperty("--live-accent", prev || target);
+        if (prev && prev !== target) {
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => root.style.setProperty("--live-accent", target)),
+          );
+        }
+      })();
+    </script>
   </head>
   <body>
-    <div
-      class="mx-auto flex min-h-dvh max-w-[820px] flex-col gap-18 bg-bg px-6 pt-10 pb-16 min-[880px]:border-x min-[880px]:border-dashed min-[880px]:border-dim"
-    >
+    <div class="backdrop" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="glass mx-auto flex min-h-dvh max-w-[820px] flex-col gap-18 px-6 pt-10 pb-16">
       <Header />
       <main>
         <slot />
@@ -48,3 +79,26 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     </div>
   </body>
 </html>
+
+<script>
+  // Hovering or focusing anything with data-live-accent (project rows, the
+  // latest card, footer tiles) previews that project's colour in the
+  // background and cursor, like switching projects in kel's sidebar.
+  const root = document.documentElement;
+  const pageAccent = root.dataset.accent ?? "";
+
+  const setLive = (color: string) => {
+    root.style.setProperty("--live-accent", color);
+    try {
+      sessionStorage.setItem("live-accent", color);
+    } catch {}
+  };
+
+  for (const el of document.querySelectorAll<HTMLElement>("[data-live-accent]")) {
+    const color = el.dataset.liveAccent ?? pageAccent;
+    el.addEventListener("pointerenter", () => setLive(color));
+    el.addEventListener("pointerleave", () => setLive(pageAccent));
+    el.addEventListener("focus", () => setLive(color));
+    el.addEventListener("blur", () => setLive(pageAccent));
+  }
+</script>

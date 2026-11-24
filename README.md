@@ -29,6 +29,7 @@ platform: Windows # optional
 builtWith: Claude Code # optional
 date: 2026-10-01 # ordering; the newest one is "latest"
 sprite: /sprites/kel.png
+accent: "#ff8a3d" # optional; project colour: tints background, cursor, accents
 tldr: Optional 2–3 lines shown on paper above the story.
 links: # all optional
   github: https://github.com/…

@@ -4,7 +4,13 @@ import { render } from "astro:content";
 import Sprite from "../../components/Sprite.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { CATEGORY_LABEL } from "../../lib/categories";
-import { getProjects, type Project, projectUrl, spriteTransition } from "../../lib/projects";
+import {
+  getProjects,
+  type Project,
+  projectAccent,
+  projectUrl,
+  spriteTransition,
+} from "../../lib/projects";
 
 export const getStaticPaths = (async () => {
   const projects = await getProjects();
@@ -42,17 +48,17 @@ const links = (["live", "github", "readme"] as const)
   .map((k) => ({ label: k, href: d.links[k]! }));
 ---
 
-<BaseLayout title={d.title} description={d.tagline}>
+<BaseLayout title={d.title} description={d.tagline} accent={d.accent}>
   <div class="flex flex-col gap-12">
     <section class="flex flex-col gap-7">
       <a href="/#projects" class="text-[13px] text-dim hover:text-accent">← projects/</a>
       <div class="flex flex-wrap items-center gap-7">
-        <div class="flex size-32 items-center justify-center border border-line-strong bg-surface">
+        <div class="px-corners flex size-32 items-center justify-center bg-surface">
           <Sprite src={d.sprite} size={96} alt={`${d.title} sprite`} transition={spriteTransition(project)} />
         </div>
         <div class="flex min-w-0 flex-[1_1_320px] flex-col gap-2.5">
           <h1 class="font-pixel text-[56px] leading-none font-bold">
-            {d.title}<span class="cursor text-accent" aria-hidden="true">_</span>
+            {d.title}<span class="cursor text-accent" aria-hidden="true"></span>
           </h1>
           <p class="text-fg-soft">{d.tagline}</p>
         </div>
@@ -61,7 +67,7 @@ const links = (["live", "github", "readme"] as const)
 
     {
       d.tldr && (
-        <div class="flex flex-col gap-2 bg-paper px-7 py-6 text-ink">
+        <div class="px-corners paper-grain flex flex-col gap-2 bg-paper px-7 py-6 text-ink">
           <span class="text-xs font-bold text-accent-ink">tl;dr</span>
           <p class="font-sans text-lg leading-relaxed text-ink-soft">{d.tldr}</p>
         </div>
@@ -99,7 +105,17 @@ const links = (["live", "github", "readme"] as const)
 
     <nav class="flex flex-wrap justify-between gap-4 border-t border-line pt-6 text-[13px]">
       <a href="/#projects" class="text-dim hover:text-accent">← all projects</a>
-      {next && <a href={projectUrl(next)} class="hover:text-accent">next: {next.data.title} →</a>}
+      {
+        next && (
+          <a
+            href={projectUrl(next)}
+            data-live-accent={projectAccent(next)}
+            class="hover:text-accent"
+          >
+            next: {next.data.title} →
+          </a>
+        )
+      }
     </nav>
   </div>
 </BaseLayout>

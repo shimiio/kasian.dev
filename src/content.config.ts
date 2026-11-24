@@ -20,6 +20,12 @@ const projects = defineCollection({
     date: z.coerce.date(),
     /** Path under public/, e.g. /sprites/kel.png */
     sprite: z.string(),
+    /** Project colour, like a project accent in kel: tints the background,
+     *  the cursor and accents on its page. Omit to use the site accent. */
+    accent: z
+      .string()
+      .regex(/^#[0-9a-fA-F]{6}$/, "accent must be a #rrggbb colour")
+      .optional(),
     /** Optional 2–3 line summary shown on paper above the story. */
     tldr: z.string().optional(),
     links: z

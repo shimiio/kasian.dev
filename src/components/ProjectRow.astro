@@ -1,6 +1,6 @@
 ---
 import { CATEGORY_LABEL } from "../lib/categories";
-import { type Project, projectUrl, spriteTransition } from "../lib/projects";
+import { type Project, projectAccent, projectUrl, spriteTransition } from "../lib/projects";
 import Sprite from "./Sprite.astro";
 
 interface Props {
@@ -14,6 +14,7 @@ const d = project.data;
 <a
   href={projectUrl(project)}
   data-category={d.category}
+  data-live-accent={projectAccent(project)}
   class="row grid grid-cols-[48px_minmax(0,1fr)_auto] items-start gap-5 border-b border-line px-4 py-5"
 >
   <Sprite src={d.sprite} size={48} transition={spriteTransition(project)} class="mt-0.5" />

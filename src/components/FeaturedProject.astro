@@ -1,6 +1,6 @@
 ---
 import { CATEGORY_LABEL } from "../lib/categories";
-import { type Project, projectUrl } from "../lib/projects";
+import { type Project, projectAccent, projectUrl } from "../lib/projects";
 import Sprite from "./Sprite.astro";
 
 interface Props {
@@ -13,9 +13,10 @@ const d = project.data;
 
 <a
   href={projectUrl(project)}
-  class="group flex flex-wrap items-center gap-7 bg-paper p-7 text-ink"
+  data-live-accent={projectAccent(project)}
+  class="px-corners paper-grain group flex flex-wrap items-center gap-7 bg-paper p-7 text-ink"
 >
-  <div class="flex size-28 items-center justify-center bg-paper-deep">
+  <div class="px-corners flex size-28 items-center justify-center bg-paper-deep [--px:4px]">
     <Sprite src={d.sprite} size={84} />
   </div>
   <div class="flex min-w-0 flex-[1_1_340px] flex-col gap-2">

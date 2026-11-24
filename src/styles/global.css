@@ -408,7 +408,86 @@ html {
   animation-timing-function: var(--vt-fade-ease);
 }
 
+/* ── Home boot animation (src/scripts/boot.ts) ─────────────────────────────
+   html.booting is set before the first paint and removed when the animation
+   ends or is skipped. Hidden parts keep their space (visibility, not
+   display), so nothing jumps when they appear. A child with visibility:
+   visible shows inside a hidden parent: that is how typed letters appear. */
+.booting [data-boot-text]:not(.boot-typing),
+.booting [data-boot-section]:not(.boot-open),
+.booting [data-boot-section] [data-boot-item]:not(.boot-shown),
+.booting .boot-off {
+  visibility: hidden;
+}
+
+.booting [data-boot-section] {
+  position: relative;
+}
+
+.boot-shown {
+  animation: boot-in 0.16s ease-out;
+}
+
+@keyframes boot-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.cursor.cursor-solid {
+  animation: none; /* a terminal cursor stays solid while text is typed */
+}
+
+.boot-loader {
+  visibility: visible;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: 0.75ch;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.spinner {
+  display: inline-block;
+  width: 1.2ch;
+  margin-right: 0.4ch;
+  text-align: center;
+}
+
+.boot-spin {
+  color: var(--color-accent);
+}
+
+/* A wave of light running over the text, like a busy terminal line. */
+.shimmer {
+  background: linear-gradient(
+      90deg,
+      var(--color-dim) 0 40%,
+      var(--color-fg) 50%,
+      var(--color-dim) 60% 100%
+    )
+    0 0 / 250% 100%;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .shimmer {
+    animation: none;
+  }
+
   .cursor,
   .backdrop span {
     animation: none;

@@ -27,3 +27,7 @@ export const SITE_ACCENT = "#b6f36a";
 export const SITE_BACKDROP = "#9aa1ab";
 
 export const projectAccent = (p: Project) => p.data.accent ?? SITE_ACCENT;
+
+/** Statuses of a project that runs / is in use right now: shown with a spinner. */
+const RUNNING = new Set(["live", "daily driver", "in progress"]);
+export const isRunning = (p: Project) => RUNNING.has(p.data.status);

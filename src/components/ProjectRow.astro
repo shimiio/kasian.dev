@@ -1,17 +1,19 @@
 ---
 import { CATEGORY_LABEL } from "../lib/categories";
-import { type Project, projectAccent, projectUrl, spriteTransition } from "../lib/projects";
+import { isRunning, type Project, projectAccent, projectUrl, spriteTransition } from "../lib/projects";
 import Sprite from "./Sprite.astro";
 
 interface Props {
   project: Project;
+  [attr: `data-${string}`]: unknown;
 }
 
-const { project } = Astro.props;
+const { project, ...rest } = Astro.props;
 const d = project.data;
 ---
 
 <a
+  {...rest}
   href={projectUrl(project)}
   data-category={d.category}
   data-live-accent={projectAccent(project)}
@@ -31,6 +33,9 @@ const d = project.data;
     class="col-start-2 flex flex-wrap gap-x-3 text-xs whitespace-nowrap sm:col-start-3 sm:row-start-1 sm:flex-col sm:items-end sm:gap-1"
   >
     <span class="text-(--row-acc)">{CATEGORY_LABEL[d.category]}</span>
-    <span class="text-(--row-dim)">{d.status}</span>
+    <span class="text-(--row-dim)">
+      {isRunning(project) && <span data-spinner class="spinner text-(--row-acc)" aria-hidden="true">⠋</span>}
+      {d.status}
+    </span>
   </div>
 </a>

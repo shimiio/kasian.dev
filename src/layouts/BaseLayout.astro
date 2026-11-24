@@ -10,7 +10,8 @@ import { ClientRouter } from "astro:transitions";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import { SITE } from "../config";
-import { SITE_ACCENT } from "../lib/projects";
+import { arrowCursor, handCursor } from "../lib/cursors";
+import { getProjects, projectAccent, SITE_ACCENT, SITE_BACKDROP } from "../lib/projects";
 
 interface Props {
   title?: string;
@@ -21,6 +22,8 @@ interface Props {
 
 const { title, description = SITE.description, accent } = Astro.props;
 const pageAccent = accent ?? SITE_ACCENT;
+// Background field colour: the project's colour, or a near-neutral grey.
+const pageBackdrop = accent ?? SITE_BACKDROP;
 // On a project page its colour becomes the accent; accent-ink (accent text
 // on paper) is a darkened version of it.
 const accentStyle = accent
@@ -30,12 +33,26 @@ const accentStyle = accent
 // "soft" = blurred CSS blobs.
 const BACKGROUND: "pixels" | "soft" = "pixels";
 
+// Experiment: pixel mouse cursors. A neutral arrow and hand everywhere; over a
+// project (anything with data-live-accent) the hand takes the project's colour.
+const CUSTOM_CURSOR = true;
+const cursorCss = await (async () => {
+  if (!CUSTOM_CURSOR) return "";
+  const projects = await getProjects();
+  const accents = [...new Set([SITE_ACCENT, ...projects.map(projectAccent)])];
+  const neutral = "#e8e6e3";
+  return [
+    `:root{--cursor-arrow:${arrowCursor(neutral)};--cursor-hand:${handCursor(neutral)}}`,
+    ...accents.map((c) => `[data-live-accent="${c}"]{cursor:${handCursor(c)}}`),
+  ].join(" ");
+})();
+
 const fullTitle = title ? `${title} · ${SITE.domain}` : `${SITE.name} · ${SITE.domain}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
-<html lang="en" data-accent={pageAccent} style={accentStyle}>
+<html lang="en" data-accent={pageAccent} data-backdrop={pageBackdrop} style={accentStyle}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -53,13 +70,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <!-- In-page navigation: links swap the page without a full reload, with
          view transitions in every browser that has them (Firefox too). -->
     <ClientRouter />
-    <!-- First load only: start the live colour at this page's accent. -->
+    <!-- First load only: start the background at this page's colour. -->
     <script is:inline>
       document.documentElement.style.setProperty(
         "--live-accent",
-        document.documentElement.dataset.accent,
+        document.documentElement.dataset.backdrop,
       );
     </script>
+    {cursorCss && <style is:inline set:html={cursorCss} />}
   </head>
   <body>
     <!-- Persisted across navigations: the background keeps moving and only
@@ -97,32 +115,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 <script>
   import "../scripts/pixel-field";
 
-  // --live-accent = colour of the current page, or of the project under the
-  // pointer / focus (rows, the latest card, footer tiles, "next" link), like
-  // switching projects in kel's sidebar. It is a registered <color> with a CSS
-  // transition, so every change fades.
+  // Background colour (--live-accent, a registered <color> with a CSS
+  // transition) follows the page you are on. After a page swap <html> gets the
+  // new page's attributes, which wipes the inline value: set it again right
+  // away, before the next frame, so it fades from where it was.
   const root = document.documentElement;
-  const setLive = (color?: string) => {
-    if (color) root.style.setProperty("--live-accent", color);
-  };
-  const pageAccent = () => root.dataset.accent;
-  const previewOf = (target: EventTarget | null) =>
-    target instanceof Element ? target.closest<HTMLElement>("[data-live-accent]") : null;
-
-  // Delegated on document, so it keeps working after page swaps.
-  const enter = (e: Event) => setLive(previewOf(e.target)?.dataset.liveAccent);
-  const leave = (e: Event) => {
-    const from = previewOf(e.target);
-    const to = previewOf((e as PointerEvent | FocusEvent).relatedTarget);
-    if (from && from !== to) setLive(to?.dataset.liveAccent ?? pageAccent());
-  };
-  document.addEventListener("pointerover", enter);
-  document.addEventListener("pointerout", leave);
-  document.addEventListener("focusin", enter);
-  document.addEventListener("focusout", leave);
-
-  // After a page swap <html> gets the new page's attributes (which wipes the
-  // inline --live-accent): set it again right away, before the next frame, so
-  // the colour fades from where it was instead of jumping.
-  document.addEventListener("astro:after-swap", () => setLive(pageAccent()));
+  document.addEventListener("astro:after-swap", () => {
+    root.style.setProperty("--live-accent", root.dataset.backdrop ?? "");
+  });
 </script>

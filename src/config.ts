@@ -3,7 +3,7 @@ export const SITE = {
   domain: "kasian.dev",
   location: "Vienna",
   description:
-    "The human side of my projects: why I built them and what I got out of it.",
+    "My projects and ideas from the other side: the stuff that doesn't make it into a README or a CV.",
 };
 
 // TODO: fill in real LinkedIn, email and CV (put the PDF at public/cv.pdf).

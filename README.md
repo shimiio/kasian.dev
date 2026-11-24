@@ -1,6 +1,6 @@
 # kasian.dev
 
-My personal site: the human side of my projects — why I built them and what I got out of it.
+My personal site: my projects and ideas from the other side — the stuff that doesn't make it into a README or a CV.
 
 Astro (static) · MDX · Tailwind CSS v4.
 

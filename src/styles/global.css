@@ -40,6 +40,13 @@
     color-scheme: dark;
   }
 
+  /* Experiment: a faint pixel dot grid outside the content column
+     (the column itself has a solid bg). Delete these 2 lines to drop it. */
+  body {
+    background-image: radial-gradient(circle at 1px 1px, #2a2a31 1px, transparent 0);
+    background-size: 16px 16px;
+  }
+
   body {
     min-height: 100dvh;
     font-size: 15px;
@@ -178,20 +185,29 @@
 }
 
 /* ── Page transitions: native cross-document View Transitions ──
-   Stepped timing keeps them "pixel", not smooth-app. */
+   Two flavours to compare. Swap the values below to switch:
+     smooth  — ease-out curve, a bit longer (current)
+     stepped — steps(6,end) / 280ms and steps(4,end) / 160ms: more "pixel" */
+:root {
+  --vt-move-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --vt-move-duration: 420ms;
+  --vt-fade-ease: ease-out;
+  --vt-fade-duration: 200ms;
+}
+
 @view-transition {
   navigation: auto;
 }
 
 ::view-transition-group(*) {
-  animation-duration: 280ms;
-  animation-timing-function: steps(6, end);
+  animation-duration: var(--vt-move-duration);
+  animation-timing-function: var(--vt-move-ease);
 }
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 160ms;
-  animation-timing-function: steps(4, end);
+  animation-duration: var(--vt-fade-duration);
+  animation-timing-function: var(--vt-fade-ease);
 }
 
 @media (prefers-reduced-motion: reduce) {

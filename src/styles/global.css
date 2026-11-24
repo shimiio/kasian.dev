@@ -224,7 +224,7 @@ html {
 @media (min-width: 880px) {
   .glass {
     /* The glass edges: 1px light lines left and right. 0 = no edges. */
-    --glass-edge: rgb(255 255 255 / 0.06);
+    --glass-edge: transparent; /* was rgb(255 255 255 / 0.06) */
     box-shadow:
       inset 1px 0 0 var(--glass-edge),
       inset -1px 0 0 var(--glass-edge);

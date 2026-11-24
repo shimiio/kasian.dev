@@ -1,0 +1,33 @@
+---
+title: kel
+tagline: A Windows terminal where a project is a saved set of tabs. Open it, and the whole workspace is back.
+blurb: My own terminal emulator, born from always having five tabs open.
+category: tool
+status: daily driver
+stack: [Rust, winit]
+platform: Windows (Linux, macOS in preview)
+builtWith: Claude Code
+date: 2026-10-01 # TODO: real date
+sprite: /sprites/kel.svg
+tldr: I got tired of reopening five terminal tabs for every project, so I built a terminal that remembers them. Started solo in Rust, finished it together with Claude Code. Now it's my daily driver.
+links:
+  github: https://github.com/shimiio/kel-terminal
+---
+
+## the pain
+
+Working on projects like [pare](/projects/pare/), I always had five terminal tabs open, and every session I had to reopen them and `cd` into the right folders all over again. Two projects in parallel was worse: switching meant setting up another terminal from scratch, and sometimes that alone was enough to kill the urge to switch at all.
+
+## the spark
+
+Instead of hunting for a ready-made terminal, I got hooked on the idea of building my own. I picked Rust because I'd never touched it, and my C++ background felt like a decent starting point.
+
+## the build
+
+At first I went solo: I spent a long time learning how a PTY works, how a terminal thinks in cells and grids, and how rendering fits in. After about a month of on-and-off work, it hit me how big the job really was, and I got scared I'd spend forever on it with a result that mattered only to me.
+
+So I brought in Claude Code and we wrote the terminal together. In the beginning I tried to understand every line; the further we got, the harder that became, and eventually I handed the code over to the agent almost entirely.
+
+## now
+
+I use kel almost every day, for projects and as a plain terminal. Each project lives in it as a saved set of tabs, so I don't lose context: whether it's [pare](/projects/pare/) or [discordLLM](/projects/discord-llm/), I can jump between them, or start something new, in seconds.

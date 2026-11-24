@@ -1,0 +1,59 @@
+---
+import { getCollection } from "astro:content";
+import { LINKS, SITE } from "../config";
+import { getProjects, plural, projectUrl } from "../lib/projects";
+import Sprite from "./Sprite.astro";
+
+const projects = await getProjects();
+const ideas = await getCollection("ideas");
+
+const links = [
+  { label: "github", href: LINKS.github },
+  { label: "linkedin", href: LINKS.linkedin },
+  { label: "email", href: LINKS.email },
+  { label: "cv.pdf", href: LINKS.cv },
+];
+---
+
+<footer class="flex flex-col gap-8 border-t border-line pt-6 text-[13px] text-dim">
+  <!-- The "collection": grows by one sprite with every project. -->
+  <div class="flex flex-col gap-2.5">
+    <span class="text-xs">
+      collected so far — {plural(projects.length, "project")}, {plural(ideas.length, "idea")}
+    </span>
+    <div class="flex flex-wrap gap-2">
+      {
+        projects.map((p) => (
+          <a
+            href={projectUrl(p)}
+            aria-label={p.data.title}
+            title={p.data.title}
+            class="flex size-12 items-center justify-center border border-line-strong bg-surface hover:border-accent"
+          >
+            <Sprite src={p.data.sprite} size={24} />
+          </a>
+        ))
+      }
+      {
+        ideas.map((idea) => (
+          <a
+            href="/#ideas"
+            aria-label={`idea: ${idea.data.title}`}
+            title="idea"
+            class="flex size-12 items-center justify-center border border-line-strong bg-surface hover:border-accent"
+          >
+            <Sprite src="/sprites/idea.svg" size={24} dim />
+          </a>
+        ))
+      }
+      <div aria-hidden="true" class="size-12 border border-dashed border-line-strong"></div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap justify-between gap-4">
+    <div class="flex flex-wrap gap-5">
+      {links.map((l) => <a href={l.href} class="hover:text-accent">{l.label}</a>)}
+    </div>
+    <span>{SITE.location}</span>
+  </div>
+</footer>

@@ -1,0 +1,31 @@
+---
+import { CATEGORY_LABEL } from "../lib/categories";
+import { type Project, projectUrl, spriteTransition } from "../lib/projects";
+import Sprite from "./Sprite.astro";
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const d = project.data;
+---
+
+<a
+  href={projectUrl(project)}
+  data-category={d.category}
+  class="row grid grid-cols-[48px_minmax(0,1fr)_auto] items-start gap-5 border-b border-line px-4 py-5"
+>
+  <Sprite src={d.sprite} size={48} transition={spriteTransition(project)} class="mt-0.5" />
+  <div class="flex min-w-0 flex-col gap-1">
+    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <span class="text-[17px] font-bold">{d.title}</span>
+      <span class="text-xs text-(--row-dim)">{d.stack.join(" · ")}</span>
+    </div>
+    <span class="text-(--row-muted)">{d.blurb}</span>
+  </div>
+  <div class="flex flex-col items-end gap-1 text-xs whitespace-nowrap">
+    <span class="text-(--row-acc)">{CATEGORY_LABEL[d.category]}</span>
+    <span class="text-(--row-dim)">{d.status}</span>
+  </div>
+</a>

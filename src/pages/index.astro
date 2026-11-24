@@ -1,0 +1,115 @@
+---
+import { getCollection } from "astro:content";
+import FeaturedProject from "../components/FeaturedProject.astro";
+import ProjectRow from "../components/ProjectRow.astro";
+import Sprite from "../components/Sprite.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { CATEGORIES, CATEGORY_LABEL } from "../lib/categories";
+import { getProjects } from "../lib/projects";
+
+const projects = await getProjects();
+const ideas = await getCollection("ideas");
+const latest = projects[0];
+
+// Only offer filters for categories that actually have projects.
+const filters = [
+  { id: "all", label: "all" },
+  ...CATEGORIES.filter((c) => projects.some((p) => p.data.category === c)).map((c) => ({
+    id: c,
+    label: CATEGORY_LABEL[c],
+  })),
+];
+---
+
+<BaseLayout>
+  <div class="flex flex-col gap-18">
+    <section class="flex flex-col gap-6">
+      <h1 class="font-pixel text-[clamp(40px,9vw,60px)] leading-none font-bold">
+        Pavlo<br />Kasian<span class="cursor text-accent" aria-hidden="true">_</span>
+      </h1>
+      <p class="max-w-160 text-fg-soft">
+        Developer in Vienna. I pick the tool for the problem, not the other way around — and I
+        like wandering between fields: desktop apps, microcontrollers, small AI toys.
+      </p>
+      <p class="max-w-160 text-dim">
+        This site is the human side of my projects: why I built them and what I got out of it.
+        The technical details live in the READMEs.
+      </p>
+    </section>
+
+    {
+      latest && (
+        <section class="flex flex-col gap-4">
+          <h2 class="text-sm font-medium text-dim">latest/</h2>
+          <FeaturedProject project={latest} />
+        </section>
+      )
+    }
+
+    <section id="projects" class="flex scroll-mt-8 flex-col gap-4">
+      <div class="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 class="text-sm font-medium text-dim">
+          projects/ <span class="text-faint" data-count>{projects.length}</span>
+        </h2>
+        <div class="flex flex-wrap gap-2" role="group" aria-label="Filter projects">
+          {
+            filters.map((f) => (
+              <button
+                type="button"
+                data-filter={f.id}
+                aria-pressed={f.id === "all" ? "true" : "false"}
+                class="filter min-h-8 cursor-pointer border border-line-strong px-3 py-1 text-[13px] text-muted hover:border-dim"
+              >
+                {f.label}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+      <div class="flex flex-col border-t border-line">
+        {projects.map((p) => <ProjectRow project={p} />)}
+      </div>
+    </section>
+
+    {
+      ideas.length > 0 && (
+        <section id="ideas" class="flex scroll-mt-8 flex-col gap-4">
+          <h2 class="text-sm font-medium text-dim">
+            ideas/ <span class="text-faint">— not built yet, maybe never</span>
+          </h2>
+          <ul class="flex flex-col gap-2.5 text-muted">
+            {ideas.map((idea) => (
+              <li class="flex items-center gap-3.5">
+                <Sprite src="/sprites/idea.svg" size={24} />
+                <span>
+                  {idea.data.title}
+                  {idea.data.note && <span class="text-dim"> — {idea.data.note}</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>("[data-filter]");
+  const rows = document.querySelectorAll<HTMLElement>("[data-category]");
+  const count = document.querySelector<HTMLElement>("[data-count]");
+
+  for (const button of buttons) {
+    button.addEventListener("click", () => {
+      const filter = button.dataset.filter;
+      for (const b of buttons) b.setAttribute("aria-pressed", String(b === button));
+      let shown = 0;
+      for (const row of rows) {
+        const visible = filter === "all" || row.dataset.category === filter;
+        row.hidden = !visible;
+        if (visible) shown++;
+      }
+      if (count) count.textContent = String(shown);
+    });
+  }
+</script>

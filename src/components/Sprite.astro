@@ -1,0 +1,24 @@
+---
+interface Props {
+  src: string;
+  /** Rendered size in px — keep it an integer multiple of the sprite's size. */
+  size?: number;
+  alt?: string;
+  class?: string;
+  /** view-transition-name, so the sprite morphs between pages. */
+  transition?: string;
+  dim?: boolean;
+}
+
+const { src, size = 48, alt = "", class: className, transition, dim = false } = Astro.props;
+---
+
+<img
+  src={src}
+  alt={alt}
+  width={size}
+  height={size}
+  decoding="async"
+  class:list={["pixelated shrink-0", dim && "opacity-45", className]}
+  style={transition ? `view-transition-name: ${transition}` : undefined}
+/>

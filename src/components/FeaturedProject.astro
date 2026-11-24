@@ -1,5 +1,6 @@
 ---
 import { CATEGORY_LABEL } from "../lib/categories";
+import { LATEST_STYLE } from "../lib/experiments";
 import { isRunning, type Project, projectAccent, projectUrl } from "../lib/projects";
 import Sprite from "./Sprite.astro";
 
@@ -10,29 +11,54 @@ interface Props {
 
 const { project, ...rest } = Astro.props;
 const d = project.data;
+const colour = projectAccent(project);
+// Tint: the project's background colour if it has one (see backdrop).
+const tint = d.backdrop ?? colour;
+const paper = LATEST_STYLE === "paper";
+
+// "paper": light paper card, accents in a darkened site colour.
+// "tint": dark glass card tinted with the project's colour (--p).
+const c = paper
+  ? {
+      card: "paper-grain bg-paper text-ink",
+      sprite: "bg-paper-deep",
+      meta: "text-ink-dim",
+      acc: "text-accent-ink",
+      blurb: "text-ink-soft",
+      link: "group-hover:text-accent-ink",
+    }
+  : {
+      card: "latest-tint",
+      sprite: "latest-tint-sprite",
+      meta: "text-dim",
+      acc: "text-(--p)",
+      blurb: "text-fg-soft",
+      link: "group-hover:text-(--p)",
+    };
 ---
 
 <a
   {...rest}
   href={projectUrl(project)}
-  data-live-accent={projectAccent(project)}
-  class="px-corners paper-grain group flex flex-wrap items-center gap-7 bg-paper p-7 text-ink"
+  data-live-accent={colour}
+  style={`--p: ${colour}; --p-tint: ${tint}`}
+  class:list={["px-corners group flex flex-wrap items-center gap-7 p-7", c.card]}
 >
-  <div class="px-corners flex size-28 items-center justify-center bg-paper-deep [--px:4px]">
+  <div class:list={["px-corners flex size-28 items-center justify-center [--px:4px]", c.sprite]}>
     <Sprite src={d.sprite} size={84} />
   </div>
   <div class="flex min-w-0 flex-[1_1_340px] flex-col gap-2">
-    <div class="flex flex-wrap items-baseline gap-x-3.5 gap-y-1 text-xs text-ink-dim">
-      <span class="font-bold text-accent-ink">{CATEGORY_LABEL[d.category]}</span>
+    <div class:list={["flex flex-wrap items-baseline gap-x-3.5 gap-y-1 text-xs", c.meta]}>
+      <span class:list={["font-bold", c.acc]}>{CATEGORY_LABEL[d.category]}</span>
       <span>
-        {isRunning(project) && <span data-spinner class="spinner text-accent-ink" aria-hidden="true">⠋</span>}
+        {isRunning(project) && <span data-spinner class:list={["spinner", c.acc]} aria-hidden="true">⠋</span>}
         {d.status}
       </span>
       <span>{d.stack.join(" · ")}</span>
     </div>
     <span class="font-pixel text-[34px] leading-[1.05] font-bold">{d.title}</span>
-    <span class="text-ink-soft">{d.blurb}</span>
-    <span class="text-[13px] font-bold underline underline-offset-4 group-hover:text-accent-ink">
+    <span class={c.blurb}>{d.blurb}</span>
+    <span class:list={["text-[13px] font-bold underline underline-offset-4", c.link]}>
       read the story →
     </span>
   </div>

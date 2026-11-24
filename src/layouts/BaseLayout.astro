@@ -11,6 +11,7 @@ import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import { SITE } from "../config";
 import { arrowCursor, handCursor } from "../lib/cursors";
+import { BACKGROUND, CUSTOM_CURSOR, HOME_BACKDROP, SITE_ACCENT_STYLE } from "../lib/experiments";
 import { getProjects, projectAccent, SITE_ACCENT, SITE_BACKDROP } from "../lib/projects";
 
 interface Props {
@@ -18,32 +19,35 @@ interface Props {
   description?: string;
   /** Page colour (a project's accent). Defaults to the site accent. */
   accent?: string;
+  /** Background colour, if not the accent (a project's backdrop). */
+  backdrop?: string;
 }
 
-const { title, description = SITE.description, accent } = Astro.props;
+const { title, description = SITE.description, accent, backdrop } = Astro.props;
 const pageAccent = accent ?? SITE_ACCENT;
 const projects = await getProjects();
 
 // Background field colours (space-separated list). On a project page: its
-// colour. Elsewhere, experiment: "mix" = every project's colour, one per blob
-// (entering a project, they all turn into its colour); "grey" = near-neutral.
-const HOME_BACKDROP: "mix" | "grey" = "mix";
-const projectColours = [...new Set(projects.flatMap((p) => p.data.accent ?? []))];
+// backdrop or accent colour. Elsewhere (HOME_BACKDROP): every project's colour,
+// taking turns, or a near-neutral grey.
+const projectColours = [
+  ...new Set(projects.flatMap((p) => p.data.backdrop ?? p.data.accent ?? [])),
+];
 const pageBackdrop =
+  backdrop ??
   accent ??
   (HOME_BACKDROP === "mix" && projectColours.length ? projectColours.join(" ") : SITE_BACKDROP);
 // On a project page its colour becomes the accent; accent-ink (accent text
-// on paper) is a darkened version of it.
+// on paper) is a darkened version of it. With a neutral site colour, other
+// pages get off-white, and plain ink on paper.
 const accentStyle = accent
   ? `--color-accent: ${accent}; --color-accent-ink: color-mix(in oklab, ${accent} 45%, #000);`
-  : undefined;
-// Background experiment: "pixels" = low-res dithered colour field (canvas),
-// "soft" = blurred CSS blobs.
-const BACKGROUND: "pixels" | "soft" = "pixels";
+  : SITE_ACCENT_STYLE === "neutral"
+    ? `--color-accent: ${SITE_ACCENT}; --color-accent-ink: var(--color-ink);`
+    : undefined;
 
-// Experiment: pixel mouse cursors. A neutral arrow and hand everywhere; over a
-// project (anything with data-live-accent) the hand takes the project's colour.
-const CUSTOM_CURSOR = true;
+// Pixel mouse cursors: a neutral arrow and hand everywhere; over a project
+// (anything with data-live-accent) the hand takes the project's colour.
 const cursorCss = await (async () => {
   if (!CUSTOM_CURSOR) return "";
   const accents = [...new Set([SITE_ACCENT, ...projects.map(projectAccent)])];

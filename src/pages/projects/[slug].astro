@@ -48,7 +48,7 @@ const links = (["live", "github", "readme"] as const)
   .map((k) => ({ label: k, href: d.links[k]! }));
 ---
 
-<BaseLayout title={d.title} description={d.tagline} accent={d.accent}>
+<BaseLayout title={d.title} description={d.tagline} accent={d.accent} backdrop={d.backdrop}>
   <div class="flex flex-col gap-12">
     <section class="flex flex-col gap-7">
       <a href="/#projects" class="text-[13px] text-dim hover:text-accent">← projects/</a>

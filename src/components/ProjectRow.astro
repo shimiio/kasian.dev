@@ -1,5 +1,6 @@
 ---
 import { CATEGORY_LABEL } from "../lib/categories";
+import { ROW_HOVER, SITE_ACCENT_STYLE } from "../lib/experiments";
 import { isRunning, type Project, projectAccent, projectUrl, spriteTransition } from "../lib/projects";
 import Sprite from "./Sprite.astro";
 
@@ -10,13 +11,22 @@ interface Props {
 
 const { project, ...rest } = Astro.props;
 const d = project.data;
+const colour = projectAccent(project);
+// Neutral site colour: the row's category and spinner take the project's own
+// colour (--row-p), like projects in kel's sidebar.
+const rowStyle =
+  SITE_ACCENT_STYLE === "neutral"
+    ? `--row-p: ${colour}; --row-p-ink: color-mix(in oklab, ${colour} 45%, #000);`
+    : undefined;
 ---
 
 <a
   {...rest}
   href={projectUrl(project)}
   data-category={d.category}
-  data-live-accent={projectAccent(project)}
+  data-live-accent={colour}
+  style={rowStyle}
+  class:list={[ROW_HOVER === "tint" && "row-tint"]}
   class="row grid grid-cols-[48px_minmax(0,1fr)] items-start gap-x-4 gap-y-2 border-b border-line px-3 py-5 sm:grid-cols-[48px_minmax(0,1fr)_auto] sm:gap-5 sm:px-4"
 >
   <Sprite src={d.sprite} size={48} transition={spriteTransition(project)} class="mt-0.5" />

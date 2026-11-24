@@ -26,6 +26,12 @@ const projects = defineCollection({
       .string()
       .regex(/^#[0-9a-fA-F]{6}$/, "accent must be a #rrggbb colour")
       .optional(),
+    /** Optional background colour, when the accent does not work there:
+     *  dark orange reads as brown, so a warm accent may want a redder one. */
+    backdrop: z
+      .string()
+      .regex(/^#[0-9a-fA-F]{6}$/, "backdrop must be a #rrggbb colour")
+      .optional(),
     /** Optional 2–3 line summary shown on paper above the story. */
     tldr: z.string().optional(),
     links: z

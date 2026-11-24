@@ -6,8 +6,10 @@
 @theme {
   --color-bg: #0c0c0e;
   --color-surface: #151519;
-  --color-line: #1f1f25;
-  --color-line-strong: #2a2a31;
+  /* Lines are translucent white, not fixed greys: on the glass the background
+     under them shifts (tint, pixel field), and a fixed grey drowns in it. */
+  --color-line: rgb(255 255 255 / 0.09);
+  --color-line-strong: rgb(255 255 255 / 0.14);
   --color-fg: #e8e6e3;
   --color-fg-soft: #c9c7c3;
   --color-muted: #a1a1aa;

@@ -17,6 +17,8 @@ const FPS = 12; // low frame rate: cheap, and the motion reads as stepped
 const LEVELS = 4; // brightness steps between background and full tint
 const STRENGTH = 0.2; // max share of colour over the background (0..1): brightness
 const SAT_KEEP = 0.55; // saturation of dark pixels vs the accent's own (0 = muddy, 1 = vivid)
+const SOFT = 1.6; // soft cap on overlapping blobs: higher = brighter, flatter peaks
+const TALL = 0.6; // on tall screens, blob size follows height × TALL instead of width
 const BG = [12, 12, 14]; // --color-bg
 
 // Blobs: radius (share of the larger screen side), weight, hue shift from the
@@ -97,7 +99,9 @@ if (canvas && ctx) {
     drawnAccent = liveAccent();
     const [h, sat, l] = toHsl(parseColor(drawnAccent));
     const darkSat = Math.min(1, sat * SAT_KEEP);
-    const side = Math.max(cols, rows);
+    // Blob size follows the width; on a tall phone screen a little more, but
+    // not the full height, or one blob covers the whole width.
+    const side = Math.max(cols, rows * TALL);
 
     const blobs = BLOBS.map((b) => ({
       x: (b.ox + 0.3 * Math.sin((t / b.px) * 2 * Math.PI + b.phase)) * cols,
@@ -125,7 +129,9 @@ if (canvas && ctx) {
         }
         // Quantise intensity to LEVELS steps; the Bayer threshold decides,
         // per cell, whether it rounds up or down: that is the dither.
-        const v = Math.min(total, 1) * LEVELS;
+        // Soft cap instead of min(total, 1): where blobs overlap the colour
+        // approaches full strength without flattening into a solid patch.
+        const v = (1 - Math.exp(-SOFT * total)) * LEVELS;
         const level = Math.min(LEVELS, Math.floor(v + BAYER[(y & 3) * 4 + (x & 3)]));
         const s = (level / LEVELS) * STRENGTH;
         const i = (y * cols + x) * 4;

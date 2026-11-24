@@ -22,8 +22,16 @@ interface Props {
 
 const { title, description = SITE.description, accent } = Astro.props;
 const pageAccent = accent ?? SITE_ACCENT;
-// Background field colour: the project's colour, or a near-neutral grey.
-const pageBackdrop = accent ?? SITE_BACKDROP;
+const projects = await getProjects();
+
+// Background field colours (space-separated list). On a project page: its
+// colour. Elsewhere, experiment: "mix" = every project's colour, one per blob
+// (entering a project, they all turn into its colour); "grey" = near-neutral.
+const HOME_BACKDROP: "mix" | "grey" = "mix";
+const projectColours = [...new Set(projects.flatMap((p) => p.data.accent ?? []))];
+const pageBackdrop =
+  accent ??
+  (HOME_BACKDROP === "mix" && projectColours.length ? projectColours.join(" ") : SITE_BACKDROP);
 // On a project page its colour becomes the accent; accent-ink (accent text
 // on paper) is a darkened version of it.
 const accentStyle = accent
@@ -38,7 +46,6 @@ const BACKGROUND: "pixels" | "soft" = "pixels";
 const CUSTOM_CURSOR = true;
 const cursorCss = await (async () => {
   if (!CUSTOM_CURSOR) return "";
-  const projects = await getProjects();
   const accents = [...new Set([SITE_ACCENT, ...projects.map(projectAccent)])];
   const neutral = "#e8e6e3";
   return [
@@ -74,7 +81,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <script is:inline>
       document.documentElement.style.setProperty(
         "--live-accent",
-        document.documentElement.dataset.backdrop,
+        document.documentElement.dataset.backdrop.split(" ")[0],
       );
     </script>
     {cursorCss && <style is:inline set:html={cursorCss} />}
@@ -115,12 +122,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 <script>
   import "../scripts/pixel-field";
 
-  // Background colour (--live-accent, a registered <color> with a CSS
-  // transition) follows the page you are on. After a page swap <html> gets the
-  // new page's attributes, which wipes the inline value: set it again right
-  // away, before the next frame, so it fades from where it was.
+  // --live-accent (a registered <color> with a CSS transition; used by the
+  // "soft" background) follows the page's first backdrop colour. After a page
+  // swap <html> gets the new page's attributes, which wipes the inline value:
+  // set it again right away, so it fades from where it was. The pixel field
+  // reads data-backdrop itself and fades its colours in JS.
   const root = document.documentElement;
   document.addEventListener("astro:after-swap", () => {
-    root.style.setProperty("--live-accent", root.dataset.backdrop ?? "");
+    root.style.setProperty("--live-accent", (root.dataset.backdrop ?? "").split(" ")[0]);
   });
 </script>

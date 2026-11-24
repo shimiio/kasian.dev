@@ -176,6 +176,15 @@ html {
   animation: drift-c 110s ease-in-out infinite alternate;
 }
 
+/* Pixel variant: canvas drawn at 1/8 resolution, upscaled with hard pixels
+   (see src/scripts/pixel-field.ts for tuning). */
+.pixel-field {
+  position: absolute;
+  top: 0;
+  left: 0;
+  image-rendering: pixelated;
+}
+
 /* Grain: static SVG noise over the colour field. Inside the glass it gets
    blurred away, which is what makes the column edge read as glass. */
 .backdrop::after {
@@ -205,16 +214,18 @@ html {
 }
 
 .glass {
-  --glass-tint: 68%; /* share of solid bg in the column: higher = less see-through */
+  --glass-tint: 56%; /* share of solid bg in the column: higher = less see-through (was 68%) */
   background: color-mix(in srgb, var(--color-bg) var(--glass-tint), transparent);
   backdrop-filter: blur(24px) saturate(1.2);
 }
 
 @media (min-width: 880px) {
   .glass {
+    /* The glass edges: 1px light lines left and right. 0 = no edges. */
+    --glass-edge: rgb(255 255 255 / 0.06);
     box-shadow:
-      inset 1px 0 0 rgb(255 255 255 / 0.06),
-      inset -1px 0 0 rgb(255 255 255 / 0.06);
+      inset 1px 0 0 var(--glass-edge),
+      inset -1px 0 0 var(--glass-edge);
   }
 }
 
@@ -338,10 +349,6 @@ html {
   --vt-move-duration: 420ms;
   --vt-fade-ease: ease-out;
   --vt-fade-duration: 200ms;
-}
-
-@view-transition {
-  navigation: auto;
 }
 
 ::view-transition-group(*) {

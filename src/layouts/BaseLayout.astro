@@ -5,6 +5,8 @@ import "@fontsource/silkscreen/400.css";
 import "@fontsource/silkscreen/700.css";
 import "../styles/global.css";
 
+import { ClientRouter } from "astro:transitions";
+
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import { SITE } from "../config";
@@ -24,6 +26,10 @@ const pageAccent = accent ?? SITE_ACCENT;
 const accentStyle = accent
   ? `--color-accent: ${accent}; --color-accent-ink: color-mix(in oklab, ${accent} 45%, #000);`
   : undefined;
+// Background experiment: "pixels" = low-res dithered colour field (canvas),
+// "soft" = blurred CSS blobs.
+const BACKGROUND: "pixels" | "soft" = "pixels";
+
 const fullTitle = title ? `${title} · ${SITE.domain}` : `${SITE.name} · ${SITE.domain}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -44,32 +50,40 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta name="generator" content={Astro.generator} />
-    <!-- Runs before first paint:
-         1. background drift phase from the wall clock, so it continues across
-            pages instead of restarting on every navigation;
-         2. --live-accent (background + cursor colour) starts at the colour of
-            the previous page and then fades to this page's colour. -->
+    <!-- In-page navigation: links swap the page without a full reload, with
+         view transitions in every browser that has them (Firefox too). -->
+    <ClientRouter />
+    <!-- First load only: start the live colour at this page's accent. -->
     <script is:inline>
-      (() => {
-        const root = document.documentElement;
-        root.style.setProperty("--drift-t", `-${(Date.now() / 1000) % 3600}s`);
-        const target = root.dataset.accent;
-        let prev = null;
-        try {
-          prev = sessionStorage.getItem("live-accent");
-          sessionStorage.setItem("live-accent", target);
-        } catch {}
-        root.style.setProperty("--live-accent", prev || target);
-        if (prev && prev !== target) {
-          requestAnimationFrame(() =>
-            requestAnimationFrame(() => root.style.setProperty("--live-accent", target)),
-          );
-        }
-      })();
+      document.documentElement.style.setProperty(
+        "--live-accent",
+        document.documentElement.dataset.accent,
+      );
     </script>
   </head>
   <body>
-    <div class="backdrop" aria-hidden="true"><span></span><span></span><span></span></div>
+    <!-- Persisted across navigations: the background keeps moving and only
+         its colour changes. -->
+    <div class="backdrop" aria-hidden="true" transition:persist="backdrop">
+      {
+        BACKGROUND === "pixels" ? (
+          <canvas class="pixel-field" />
+        ) : (
+          <>
+            <span />
+            <span />
+            <span />
+          </>
+        )
+      }
+    </div>
+    <script is:inline>
+      // Drift phase from the wall clock (soft variant), set once on first load.
+      document.currentScript.previousElementSibling.style.setProperty(
+        "--drift-t",
+        `-${(Date.now() / 1000) % 3600}s`,
+      );
+    </script>
     <div class="glass mx-auto flex min-h-dvh max-w-[820px] flex-col gap-18 px-6 pt-10 pb-16">
       <Header />
       <main>
@@ -81,24 +95,34 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 </html>
 
 <script>
-  // Hovering or focusing anything with data-live-accent (project rows, the
-  // latest card, footer tiles) previews that project's colour in the
-  // background and cursor, like switching projects in kel's sidebar.
+  import "../scripts/pixel-field";
+
+  // --live-accent = colour of the current page, or of the project under the
+  // pointer / focus (rows, the latest card, footer tiles, "next" link), like
+  // switching projects in kel's sidebar. It is a registered <color> with a CSS
+  // transition, so every change fades.
   const root = document.documentElement;
-  const pageAccent = root.dataset.accent ?? "";
-
-  const setLive = (color: string) => {
-    root.style.setProperty("--live-accent", color);
-    try {
-      sessionStorage.setItem("live-accent", color);
-    } catch {}
+  const setLive = (color?: string) => {
+    if (color) root.style.setProperty("--live-accent", color);
   };
+  const pageAccent = () => root.dataset.accent;
+  const previewOf = (target: EventTarget | null) =>
+    target instanceof Element ? target.closest<HTMLElement>("[data-live-accent]") : null;
 
-  for (const el of document.querySelectorAll<HTMLElement>("[data-live-accent]")) {
-    const color = el.dataset.liveAccent ?? pageAccent;
-    el.addEventListener("pointerenter", () => setLive(color));
-    el.addEventListener("pointerleave", () => setLive(pageAccent));
-    el.addEventListener("focus", () => setLive(color));
-    el.addEventListener("blur", () => setLive(pageAccent));
-  }
+  // Delegated on document, so it keeps working after page swaps.
+  const enter = (e: Event) => setLive(previewOf(e.target)?.dataset.liveAccent);
+  const leave = (e: Event) => {
+    const from = previewOf(e.target);
+    const to = previewOf((e as PointerEvent | FocusEvent).relatedTarget);
+    if (from && from !== to) setLive(to?.dataset.liveAccent ?? pageAccent());
+  };
+  document.addEventListener("pointerover", enter);
+  document.addEventListener("pointerout", leave);
+  document.addEventListener("focusin", enter);
+  document.addEventListener("focusout", leave);
+
+  // After a page swap <html> gets the new page's attributes (which wipes the
+  // inline --live-accent): set it again right away, before the next frame, so
+  // the colour fades from where it was instead of jumping.
+  document.addEventListener("astro:after-swap", () => setLive(pageAccent()));
 </script>

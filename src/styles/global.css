@@ -107,17 +107,23 @@ html {
 }
 
 /* ── Pixel corners: each corner cut as a 2-step stair, like old game UI.
-   --px is the size of one "pixel" of the stair. Only for filled blocks:
-   clip-path would cut through borders. */
-.px-corners {
-  --px: 5px;
-  --px2: calc(var(--px) * 2);
-  clip-path: polygon(
-    0 var(--px2), var(--px) var(--px2), var(--px) var(--px), var(--px2) var(--px), var(--px2) 0,
-    calc(100% - var(--px2)) 0, calc(100% - var(--px2)) var(--px), calc(100% - var(--px)) var(--px), calc(100% - var(--px)) var(--px2), 100% var(--px2),
-    100% calc(100% - var(--px2)), calc(100% - var(--px)) calc(100% - var(--px2)), calc(100% - var(--px)) calc(100% - var(--px)), calc(100% - var(--px2)) calc(100% - var(--px)), calc(100% - var(--px2)) 100%,
-    var(--px2) 100%, var(--px2) calc(100% - var(--px)), var(--px) calc(100% - var(--px)), var(--px) calc(100% - var(--px2)), 0 calc(100% - var(--px2))
+   --px is the size of one "pixel" of the stair (default 5px; override per
+   element, e.g. class="[--px:3px]"). Only for filled blocks: clip-path
+   would cut through borders. --pixel-clip is reused by the glass window. */
+.px-corners,
+.window {
+  --px-1: var(--px, 5px);
+  --px-2: calc(var(--px-1) * 2);
+  --pixel-clip: polygon(
+    0 var(--px-2), var(--px-1) var(--px-2), var(--px-1) var(--px-1), var(--px-2) var(--px-1), var(--px-2) 0,
+    calc(100% - var(--px-2)) 0, calc(100% - var(--px-2)) var(--px-1), calc(100% - var(--px-1)) var(--px-1), calc(100% - var(--px-1)) var(--px-2), 100% var(--px-2),
+    100% calc(100% - var(--px-2)), calc(100% - var(--px-1)) calc(100% - var(--px-2)), calc(100% - var(--px-1)) calc(100% - var(--px-1)), calc(100% - var(--px-2)) calc(100% - var(--px-1)), calc(100% - var(--px-2)) 100%,
+    var(--px-2) 100%, var(--px-2) calc(100% - var(--px-1)), var(--px-1) calc(100% - var(--px-1)), var(--px-1) calc(100% - var(--px-2)), 0 calc(100% - var(--px-2))
   );
+}
+
+.px-corners {
+  clip-path: var(--pixel-clip);
 }
 
 /* Footer collection tiles: light up in the project's colour on hover. */
@@ -219,6 +225,22 @@ html {
   --glass-tint: 56%; /* share of solid bg in the column: higher = less see-through (was 68%) */
   background: color-mix(in srgb, var(--color-bg) var(--glass-tint), transparent);
   backdrop-filter: blur(24px) saturate(1.2);
+}
+
+/* ── Experiment: the glass as a floating window, not a full-height strip.
+   On wide screens it gets a gap above and below, pixel corners, and is
+   wider than the text inside it, so there is air within the glass. */
+@media (min-width: 1000px) {
+  .window {
+    --px: 6px;
+    --window-gap: 48px; /* space between the window and the screen edges */
+    margin-block: var(--window-gap);
+    min-height: calc(100dvh - var(--window-gap) * 2);
+    /* Window is 960px (max-w in BaseLayout); text inside stays 772px wide,
+       as before. (Not a %: padding % is taken from the page, not the window.) */
+    padding-inline: calc((960px - 772px) / 2);
+    clip-path: var(--pixel-clip);
+  }
 }
 
 @media (min-width: 880px) {

@@ -21,6 +21,10 @@ export const HOME_BACKDROP: "mix" | "grey" = CLEAN_SLATE ? "grey" : "mix";
  *  larger glow drifting around, most of the screen left dark. */
 export const GREY_BLOBS: 1 | 3 = 1;
 
+/** The same on a project page (its own colour): 3 = the colour and two
+ *  neighbouring hues, 1 = a single glow, like home. */
+export const PROJECT_BLOBS: 1 | 3 = 1;
+
 /** Pixel mouse cursors: neutral arrow and hand. */
 export const CUSTOM_CURSOR = true;
 

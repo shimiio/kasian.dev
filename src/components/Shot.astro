@@ -1,0 +1,78 @@
+---
+/**
+ * A screenshot or a short clip in a project story, wider than the text.
+ * In MDX (no import needed):
+ *
+ *   <Shot src="/media/kel/settings.mp4" alt="…" caption="…" />
+ *
+ * A clip (.mp4) plays muted on a loop while it is on screen, like a GIF; its
+ * poster is the .webp next to it with the same name (first frame). With
+ * reduced motion it waits on the poster, with controls.
+ */
+interface Props {
+  /** Path under public/: an image, or an .mp4 clip. */
+  src: string;
+  /** What it shows, for screen readers. */
+  alt: string;
+  /** Short line under it. */
+  caption?: string;
+  width?: number;
+  height?: number;
+}
+
+const { src, alt, caption, width = 1280, height = 720 } = Astro.props;
+const clip = src.endsWith(".mp4");
+const poster = clip ? src.replace(/\.mp4$/, ".webp") : undefined;
+---
+
+<figure class="shot">
+  <div class="shot-frame px-corners">
+    {
+      clip ? (
+        <video
+          data-shot-clip
+          src={src}
+          poster={poster}
+          width={width}
+          height={height}
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          aria-label={alt}
+        />
+      ) : (
+        <img src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
+      )
+    }
+  </div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<script>
+  // Clips play only while on screen (no CPU spent on the ones scrolled away);
+  // with reduced motion they stay on the poster and get controls instead.
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  let observer: IntersectionObserver | undefined;
+
+  const setup = () => {
+    observer?.disconnect();
+    const clips = document.querySelectorAll<HTMLVideoElement>("video[data-shot-clip]");
+    if (reduced.matches) {
+      clips.forEach((v) => (v.controls = true));
+      return;
+    }
+    observer = new IntersectionObserver(
+      (entries) =>
+        entries.forEach(({ target, isIntersecting }) => {
+          const v = target as HTMLVideoElement;
+          if (isIntersecting) v.play().catch(() => (v.controls = true));
+          else v.pause();
+        }),
+      { threshold: 0.3 },
+    );
+    clips.forEach((v) => observer!.observe(v));
+  };
+
+  document.addEventListener("astro:page-load", setup);
+</script>

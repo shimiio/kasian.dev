@@ -342,7 +342,6 @@ html {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-width: 680px;
   font-family: var(--font-sans);
   font-size: 17px;
   line-height: 1.75;
@@ -350,6 +349,11 @@ html {
 
   & > * {
     margin: 0;
+  }
+
+  /* Text stays in a readable column; screenshots and clips take the full width. */
+  & > :not(.shot) {
+    max-width: 680px;
   }
 
   & h2 {
@@ -414,6 +418,40 @@ html {
     & code {
       background: var(--color-paper-deep);
     }
+  }
+}
+
+/* ── Shot: a screenshot or clip in a story (Shot.astro) ─────── */
+.shot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0.75rem 0;
+
+  & .shot-frame {
+    --px: 4px;
+    padding: 4px;
+    background: color-mix(in oklab, var(--color-accent) 22%, var(--color-surface));
+  }
+
+  & img,
+  & video {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: var(--color-surface);
+  }
+
+  & figcaption {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--color-dim);
+  }
+
+  & figcaption::before {
+    content: "↑ ";
+    color: var(--color-faint);
   }
 }
 

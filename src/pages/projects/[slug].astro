@@ -1,6 +1,7 @@
 ---
 import type { GetStaticPaths } from "astro";
 import { render } from "astro:content";
+import Shot from "../../components/Shot.astro";
 import Sprite from "../../components/Sprite.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { CATEGORY_LABEL } from "../../lib/categories";
@@ -100,7 +101,7 @@ const links = (["live", "github", "readme"] as const)
     </dl>
 
     <article class:list={["story", STORY_ON_PAPER && "on-paper"]}>
-      <Content />
+      <Content components={{ Shot }} />
     </article>
 
     <nav class="flex flex-wrap justify-between gap-4 border-t border-line pt-6 text-[13px]">

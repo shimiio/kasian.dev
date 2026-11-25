@@ -1,3 +1,5 @@
+import { GREY_BLOBS } from "../lib/experiments";
+
 /**
  * Pixel colour field: a few slow colour blobs rendered at a very low
  * resolution (one cell = CELL css px), quantised to a few brightness levels
@@ -18,6 +20,7 @@ const FPS = 12; // low frame rate: cheap, and the motion reads as stepped
 const LEVELS = 4; // brightness steps between background and full tint
 const STRENGTH = 0.2; // max share of colour over the background (0..1): brightness
 const GREY_STRENGTH = 0.3; // the same for a greyish colour (home in "grey"), dull at 0.2
+const ONE_SIZE = 1.25; // blob size with a single glow (GREY_BLOBS = 1)
 const SAT_KEEP = 0.55; // saturation of dark pixels vs the colour's own (0 = muddy, 1 = vivid)
 const SOFT = 1.6; // soft cap on overlapping blobs: higher = brighter, flatter peaks
 const TALL = 0.6; // on tall screens, blob size follows height × TALL instead of width
@@ -90,12 +93,15 @@ const targetState = (backdrop: string, t: number): State => {
   const n = list.length;
   if (n === 1) {
     const [h, s, l] = toHsl(list[0]);
+    // A greyish colour (home in "grey") needs more brightness to look alive,
+    // and may be a single glow (the other blobs fade out).
+    const grey = s < 0.5;
+    const one = grey && GREY_BLOBS === 1;
     return {
       colours: BLOBS.map((b) => toRgb([h + b.hue, s, l])),
-      weights: BLOBS.map((b) => b.w),
-      size: 1,
-      // A greyish colour needs more brightness to look alive.
-      strength: s < 0.5 ? GREY_STRENGTH : STRENGTH,
+      weights: BLOBS.map((b, i) => (one && i > 0 ? 0 : b.w)),
+      size: one ? ONE_SIZE : 1,
+      strength: grey ? GREY_STRENGTH : STRENGTH,
     };
   }
   // Up to one colour per blob: fixed. More: all blobs step to the next colour

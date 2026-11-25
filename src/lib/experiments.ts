@@ -17,6 +17,10 @@ export const BACKGROUND: "pixels" | "soft" = "pixels";
  *  projects' colours taking turns, "grey" = cool near-neutral. */
 export const HOME_BACKDROP: "mix" | "grey" = CLEAN_SLATE ? "grey" : "mix";
 
+/** Glows in the grey background: 3 = like a project page, 1 = a single,
+ *  larger glow drifting around, most of the screen left dark. */
+export const GREY_BLOBS: 1 | 3 = 1;
+
 /** Pixel mouse cursors: neutral arrow and hand. */
 export const CUSTOM_CURSOR = true;
 

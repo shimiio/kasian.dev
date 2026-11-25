@@ -1,14 +1,19 @@
 /**
- * Home "boot" animation, like a terminal starting up. Plays once per browser
- * session (add ?boot to the URL to replay it), never with reduced motion.
- * The inline gate in index.astro adds html.booting before the first paint;
- * CSS hides the marked parts while it is set.
+ * "Boot" animation, like a terminal starting up: on home, and shorter on a
+ * project page (<html data-boot="home" | "project">, from BaseLayout's boot
+ * prop). Plays once per page per browser session (add ?boot to the URL to
+ * replay it), never with reduced motion. The gate in BaseLayout adds
+ * html.booting before the page is painted; CSS hides the marked parts while
+ * it is set.
  *
  *   [data-boot-text="char"]  typed letter by letter, the block cursor follows
  *   [data-boot-text="word"]  streamed word by word
- *   [data-boot-section]      shows a spinner line first ("loading x/"); all
+ *   [data-boot-section]      shows a spinner line first ("loading x/", x from
+ *                            data-boot-label or the section's h2); all
  *                            sections load in parallel and finish one by one
  *   [data-boot-item]         inside a section: printed one after another
+ *   [data-boot-section="children"]  the section's own children are the items
+ *                            (for MDX content, which cannot be marked)
  *
  * A click, tap or key (not scrolling) skips to the end.
  */
@@ -16,19 +21,26 @@
 import { SPINNER } from "./spinners";
 
 // ── Tuning (ms) ──────────────────────────────────────────────────────────
-const CHAR_MS = 55; // name, per letter
-const WORD_MS = 22; // intro, per word
-const PAUSE_MS = 150; // between intro blocks
-const LOAD_MS = 650; // first section's spinner time
-const LOAD_STEP_MS = 380; // each next section finishes this much later
-const ITEM_MS = 70; // between printed items
+// A project page is visited often, back and forth: about half as long.
+const TIMING = {
+  home: {
+    char: 55, // name, per letter
+    word: 22, // intro, per word
+    pause: 150, // between intro blocks
+    load: 650, // first section's spinner time
+    loadStep: 380, // each next section finishes this much later
+    item: 70, // between printed items
+  },
+  project: { char: 45, word: 12, pause: 100, load: 380, loadStep: 220, item: 45 },
+};
 const SPINNER_MS = 80;
 
 const root = document.documentElement;
 
 const run = () => {
   if (!root.classList.contains("booting")) return;
-  sessionStorage.setItem("booted", "1");
+  sessionStorage.setItem(`booted:${location.pathname}`, "1");
+  const T = TIMING[root.dataset.boot === "project" ? "project" : "home"];
   // ?boot=5 plays it 5× slower, to look at it closely.
   const slow = Number(new URLSearchParams(location.search).get("boot")) || 1;
 
@@ -101,14 +113,14 @@ const run = () => {
       if (el === texts[0]) units[0].before(c);
       else at(t, () => units[0].before(c));
     }
-    const step = mode === "char" ? CHAR_MS : WORD_MS;
+    const step = mode === "char" ? T.char : T.word;
     units.forEach((u, i) =>
       at(t + i * step, () => {
         u.classList.remove("boot-off");
         if (c) u.after(c);
       }),
     );
-    t += units.length * step + PAUSE_MS;
+    t += units.length * step + T.pause;
     if (mode === "char") introEnd = t; // sections start loading once the name is in
   }
   if (cursor) {
@@ -120,7 +132,7 @@ const run = () => {
   // 2. Sections: spinners start together, then finish one by one.
   let end = t;
   document.querySelectorAll<HTMLElement>("[data-boot-section]").forEach((section, i) => {
-    const label = section.querySelector("h2")?.firstChild?.textContent?.trim() ?? "";
+    const label = section.dataset.bootLabel ?? section.querySelector("h2")?.firstChild?.textContent?.trim() ?? "";
     const loader = document.createElement("div");
     loader.className = "boot-loader";
     loader.setAttribute("aria-hidden", "true");
@@ -148,15 +160,18 @@ const run = () => {
     });
     restore.push(() => clearInterval(spinTimer));
 
-    const done = introEnd + LOAD_MS + i * LOAD_STEP_MS;
+    const done = introEnd + T.load + i * T.loadStep;
     at(done, () => {
       clearInterval(spinTimer);
       loader.remove();
       section.classList.add("boot-open");
     });
-    const items = section.querySelectorAll<HTMLElement>("[data-boot-item]");
-    items.forEach((item, j) => at(done + j * ITEM_MS, () => item.classList.add("boot-shown")));
-    end = Math.max(end, done + items.length * ITEM_MS);
+    const items =
+      section.dataset.bootSection === "children"
+        ? [...section.children].map((el) => (el.setAttribute("data-boot-item", ""), el))
+        : [...section.querySelectorAll<HTMLElement>("[data-boot-item]")];
+    items.forEach((item, j) => at(done + j * T.item, () => item.classList.add("boot-shown")));
+    end = Math.max(end, done + items.length * T.item);
   });
 
   at(end + 300, finish);

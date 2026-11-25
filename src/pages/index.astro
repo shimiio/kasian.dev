@@ -21,21 +21,7 @@ const filters = [
 ];
 ---
 
-<BaseLayout>
-  <!-- Boot animation gate (see src/scripts/boot.ts): runs before the first
-       paint, so the hidden parts never flash. Once per session; ?boot replays. -->
-  <script is:inline>
-    (() => {
-      const params = new URLSearchParams(location.search);
-      const replay = params.has("boot");
-      if (!replay && sessionStorage.getItem("booted")) return;
-      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      const root = document.documentElement;
-      root.classList.add("booting");
-      const slow = Number(params.get("boot")) || 1;
-      setTimeout(() => root.classList.remove("booting"), 8000 * slow); // safety net
-    })();
-  </script>
+<BaseLayout boot="home">
   <div class="flex flex-col gap-18">
     <section class="flex flex-col gap-6">
       <h1 data-boot-text="char" class="font-pixel text-[clamp(40px,9vw,60px)] leading-none font-bold">
@@ -109,8 +95,6 @@ const filters = [
 </BaseLayout>
 
 <script>
-  import "../scripts/boot";
-
   // Runs on every visit of this page (first load and in-page navigation).
   document.addEventListener("astro:page-load", () => {
     const buttons = document.querySelectorAll<HTMLButtonElement>("[data-filter]");

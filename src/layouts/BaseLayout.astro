@@ -29,9 +29,11 @@ interface Props {
   accent?: string;
   /** Background colour, if not the accent (a project's backdrop). */
   backdrop?: string;
+  /** Boot animation on this page (see src/scripts/boot.ts). */
+  boot?: "home" | "project";
 }
 
-const { title, description = SITE.description, accent, backdrop } = Astro.props;
+const { title, description = SITE.description, accent, backdrop, boot } = Astro.props;
 const pageAccent = accent ?? SITE_ACCENT;
 const projects = await getProjects();
 
@@ -73,7 +75,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
-<html lang="en" data-notes={NOTES} data-accent={pageAccent} data-backdrop={pageBackdrop} style={accentStyle}>
+<html lang="en" data-boot={boot} data-notes={NOTES} data-accent={pageAccent} data-backdrop={pageBackdrop} style={accentStyle}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -97,6 +99,29 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         "--live-accent",
         document.documentElement.dataset.backdrop.split(" ")[0],
       );
+    </script>
+    <!-- Boot animation gate (see src/scripts/boot.ts): adds html.booting before
+         the page is painted, so the hidden parts never flash. On first load
+         right here; after an in-page navigation on astro:after-swap, which
+         runs before the new page is shown. Once per page per session; ?boot
+         replays, ?boot=5 plays 5x slower. -->
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        let safety = 0;
+        const gate = () => {
+          clearTimeout(safety);
+          if (!root.dataset.boot) return;
+          const params = new URLSearchParams(location.search);
+          if (!params.has("boot") && sessionStorage.getItem("booted:" + location.pathname)) return;
+          if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+          root.classList.add("booting");
+          const slow = Number(params.get("boot")) || 1;
+          safety = setTimeout(() => root.classList.remove("booting"), 8000 * slow);
+        };
+        gate();
+        document.addEventListener("astro:after-swap", gate);
+      })();
     </script>
     {cursorCss && <style is:inline set:html={cursorCss} />}
   </head>
@@ -134,6 +159,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 </html>
 
 <script>
+  import "../scripts/boot";
   import "../scripts/pixel-field";
   import "../scripts/spinners";
 

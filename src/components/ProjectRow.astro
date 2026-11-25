@@ -1,6 +1,6 @@
 ---
 import { CATEGORY_LABEL } from "../lib/categories";
-import { ROW_HOVER, SITE_ACCENT_STYLE } from "../lib/experiments";
+import { HOME_PROJECT_COLOURS, ROW_HOVER, SITE_ACCENT_STYLE } from "../lib/experiments";
 import { isRunning, type Project, projectAccent, projectUrl, spriteTransition } from "../lib/projects";
 import Sprite from "./Sprite.astro";
 
@@ -15,7 +15,7 @@ const colour = projectAccent(project);
 // Neutral site colour: the row's category and spinner take the project's own
 // colour (--row-p), like projects in kel's sidebar.
 const rowStyle =
-  SITE_ACCENT_STYLE === "neutral"
+  SITE_ACCENT_STYLE === "neutral" && HOME_PROJECT_COLOURS
     ? `--row-p: ${colour}; --row-p-ink: color-mix(in oklab, ${colour} 45%, #000);`
     : undefined;
 ---

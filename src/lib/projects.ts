@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from "astro:content";
-import { SITE_ACCENT_STYLE } from "./experiments";
+import { HOME_PROJECT_COLOURS, SITE_ACCENT_STYLE } from "./experiments";
 
 export type Project = CollectionEntry<"projects">;
 
@@ -25,9 +25,16 @@ export const SITE_ACCENT = SITE_ACCENT_STYLE === "neutral" ? "#e8e6e3" : "#b6f36
 
 /** Background colour on pages that are not a project (home, 404): a cool,
  *  almost neutral grey, so a project's own colour stands out when you enter it. */
-export const SITE_BACKDROP = "#9aa1ab";
+export const SITE_BACKDROP = "#9db0cc"; // cool steel grey
 
 export const projectAccent = (p: Project) => p.data.accent ?? SITE_ACCENT;
+
+/** A project's colour outside its own page (rows, latest card, tiles):
+ *  neutral without HOME_PROJECT_COLOURS. Tint: for surfaces, its backdrop. */
+const NEUTRAL = "#e8e6e3";
+export const homeColour = (p: Project) => (HOME_PROJECT_COLOURS ? projectAccent(p) : NEUTRAL);
+export const homeTint = (p: Project) =>
+  HOME_PROJECT_COLOURS ? (p.data.backdrop ?? projectAccent(p)) : NEUTRAL;
 
 /** Statuses of a project that runs / is in use right now: shown with a spinner. */
 const RUNNING = new Set(["live", "daily driver", "in progress"]);

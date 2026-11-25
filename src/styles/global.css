@@ -439,6 +439,31 @@ html {
   animation-timing-function: var(--vt-fade-ease);
 }
 
+/* ── Notes: asides (NOTES in experiments.ts, set as html[data-notes]) ──
+   "comment": italic mono, like comments in a code editor. "plain": dim text,
+   inline ones after a dash. */
+.note {
+  font-weight: 400;
+  color: var(--color-dim);
+}
+
+[data-notes="comment"] .note {
+  font-style: italic;
+}
+
+[data-notes="comment"] .note::before {
+  content: "// ";
+  color: var(--color-faint);
+}
+
+[data-notes="plain"] .note-inline {
+  color: var(--color-faint);
+}
+
+[data-notes="plain"] .note-inline::before {
+  content: "— ";
+}
+
 /* ── Home boot animation (src/scripts/boot.ts) ─────────────────────────────
    html.booting is set before the first paint and removed when the animation
    ends or is skipped. Hidden parts keep their space (visibility, not

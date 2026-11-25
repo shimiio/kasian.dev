@@ -1,5 +1,6 @@
 ---
 import "@fontsource-variable/jetbrains-mono";
+import "@fontsource-variable/jetbrains-mono/wght-italic.css";
 import "@fontsource-variable/inter";
 import "@fontsource/silkscreen/400.css";
 import "@fontsource/silkscreen/700.css";
@@ -11,7 +12,14 @@ import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import { SITE } from "../config";
 import { arrowCursor, handCursor } from "../lib/cursors";
-import { BACKGROUND, CUSTOM_CURSOR, HOME_BACKDROP, SITE_ACCENT_STYLE } from "../lib/experiments";
+import {
+  BACKGROUND,
+  CURSOR_PROJECT_COLOUR,
+  CUSTOM_CURSOR,
+  HOME_BACKDROP,
+  NOTES,
+  SITE_ACCENT_STYLE,
+} from "../lib/experiments";
 import { getProjects, projectAccent, SITE_ACCENT, SITE_BACKDROP } from "../lib/projects";
 
 interface Props {
@@ -54,7 +62,9 @@ const cursorCss = await (async () => {
   const neutral = "#e8e6e3";
   return [
     `:root{--cursor-arrow:${arrowCursor(neutral)};--cursor-hand:${handCursor(neutral)}}`,
-    ...accents.map((c) => `[data-live-accent="${c}"]{cursor:${handCursor(c)}}`),
+    ...(CURSOR_PROJECT_COLOUR ? accents : []).map(
+      (c) => `[data-live-accent="${c}"]{cursor:${handCursor(c)}}`,
+    ),
   ].join(" ");
 })();
 
@@ -63,7 +73,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
-<html lang="en" data-accent={pageAccent} data-backdrop={pageBackdrop} style={accentStyle}>
+<html lang="en" data-notes={NOTES} data-accent={pageAccent} data-backdrop={pageBackdrop} style={accentStyle}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

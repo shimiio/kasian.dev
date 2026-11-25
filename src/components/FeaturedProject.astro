@@ -1,7 +1,7 @@
 ---
 import { CATEGORY_LABEL } from "../lib/categories";
 import { LATEST_STYLE } from "../lib/experiments";
-import { isRunning, type Project, projectAccent, projectUrl } from "../lib/projects";
+import { homeColour, homeTint, isRunning, type Project, projectAccent, projectUrl } from "../lib/projects";
 import Sprite from "./Sprite.astro";
 
 interface Props {
@@ -11,9 +11,10 @@ interface Props {
 
 const { project, ...rest } = Astro.props;
 const d = project.data;
-const colour = projectAccent(project);
-// Tint: the project's background colour if it has one (see backdrop).
-const tint = d.backdrop ?? colour;
+// Card colours (neutral without HOME_PROJECT_COLOURS); tint: for the surface,
+// the project's background colour if it has one (see backdrop).
+const colour = homeColour(project);
+const tint = homeTint(project);
 const paper = LATEST_STYLE === "paper";
 
 // "paper": light paper card, accents in a darkened site colour.
@@ -40,7 +41,7 @@ const c = paper
 <a
   {...rest}
   href={projectUrl(project)}
-  data-live-accent={colour}
+  data-live-accent={projectAccent(project)}
   style={`--p: ${colour}; --p-tint: ${tint}`}
   class:list={["px-corners group flex flex-wrap items-center gap-7 p-7", c.card]}
 >

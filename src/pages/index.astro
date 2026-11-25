@@ -89,7 +89,7 @@ const filters = [
       ideas.length > 0 && (
         <section id="ideas" data-boot-section class="flex scroll-mt-8 flex-col gap-4">
           <h2 data-boot-item class="text-sm font-medium text-dim">
-            ideas/ <span class="text-faint">— not built yet, maybe never</span>
+            ideas/ <span class="note note-inline">not built yet, maybe never</span>
           </h2>
           <ul class="flex flex-col gap-2.5 text-muted">
             {ideas.map((idea) => (
@@ -97,7 +97,7 @@ const filters = [
                 <Sprite src="/sprites/idea.svg" size={24} />
                 <span>
                   {idea.data.title}
-                  {idea.data.note && <span class="text-dim"> — {idea.data.note}</span>}
+                  {idea.data.note && <span class="note note-inline"> {idea.data.note}</span>}
                 </span>
               </li>
             ))}

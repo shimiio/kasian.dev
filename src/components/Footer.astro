@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { LINKS, SITE } from "../config";
-import { getProjects, plural, projectAccent, projectUrl } from "../lib/projects";
+import { getProjects, homeColour, plural, projectAccent, projectUrl } from "../lib/projects";
 import Sprite from "./Sprite.astro";
 
 const projects = await getProjects();
@@ -18,8 +18,8 @@ const links = [
 <footer class="flex flex-col gap-8 border-t border-line pt-6 text-[13px] text-dim">
   <!-- The "collection": grows by one sprite with every project. -->
   <div class="flex flex-col gap-2.5">
-    <span class="text-xs">
-      collected so far — {plural(projects.length, "project")}, {plural(ideas.length, "idea")}
+    <span class="note text-xs">
+      collected so far: {plural(projects.length, "project")}, {plural(ideas.length, "idea")}
     </span>
     <div class="flex flex-wrap gap-2">
       {
@@ -29,7 +29,7 @@ const links = [
             aria-label={p.data.title}
             title={p.data.title}
             data-live-accent={projectAccent(p)}
-            style={`--tile: ${projectAccent(p)}`}
+            style={`--tile: ${homeColour(p)}`}
             class="tile px-corners flex size-12 items-center justify-center [--px:3px]"
           >
             <Sprite src={p.data.sprite} size={24} />

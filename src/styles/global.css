@@ -601,6 +601,43 @@ html {
   text-align: center;
 }
 
+/* Status marks (StatusMark.astro): a small square light, the width of a
+   spinner, so marks line up. "live" blinks like an online light. */
+.status-dot {
+  display: inline-block;
+  width: 1.2ch;
+  margin-right: 0.4ch;
+  text-align: center;
+
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 0.55em;
+    height: 0.55em;
+    background: currentColor;
+  }
+}
+
+.status-blink::before {
+  animation: status-blink 1.6s steps(1) infinite;
+}
+
+@keyframes status-blink {
+  60% {
+    opacity: 0.2;
+  }
+}
+
+.status-off {
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-blink::before {
+    animation: none;
+  }
+}
+
 .boot-spin {
   color: var(--color-accent);
 }

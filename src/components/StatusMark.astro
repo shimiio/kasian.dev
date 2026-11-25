@@ -1,0 +1,33 @@
+---
+/**
+ * A project's status with its mark (see src/lib/status.ts):
+ *   building  ⠋ spinner        live  ■ blinking
+ *   in use    ■ steady         paused / archived  no mark, dimmer text
+ * The mark takes the colour from markClass; the text from the parent.
+ */
+import { STATUS_MARK } from "../lib/status";
+import type { Project } from "../lib/projects";
+
+interface Props {
+  project: Project;
+  /** Colour class for the mark. */
+  markClass?: string;
+  /** Text: the project's own label (default) or "status · label". */
+  full?: boolean;
+}
+
+const { project, markClass, full = false } = Astro.props;
+const { status, statusLabel } = project.data;
+const mark = STATUS_MARK[status];
+const text = full && statusLabel ? `${status} · ${statusLabel}` : (statusLabel ?? status);
+---
+
+<span class:list={["status", mark === "none" && "status-off"]} title={statusLabel ? status : undefined}>
+  {mark === "spinner" && <span data-spinner class:list={["spinner", markClass]} aria-hidden="true">⠋</span>}
+  {
+    (mark === "blink" || mark === "dot") && (
+      <span class:list={["status-dot", mark === "blink" && "status-blink", markClass]} aria-hidden="true" />
+    )
+  }
+  {text}
+</span>

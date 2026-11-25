@@ -2,6 +2,7 @@ import { defineCollection } from "astro:content";
 import { file, glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { CATEGORIES } from "./lib/categories";
+import { STATUSES } from "./lib/status";
 
 const projects = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/projects" }),
@@ -12,7 +13,10 @@ const projects = defineCollection({
     /** Shorter line for lists on the home page. */
     blurb: z.string(),
     category: z.enum(CATEGORIES),
-    status: z.string(),
+    /** Where it is now; each status has its own mark (see lib/status.ts). */
+    status: z.enum(STATUSES),
+    /** The project's own word for it, shown instead ("daily driver"). */
+    statusLabel: z.string().optional(),
     stack: z.array(z.string()),
     platform: z.string().optional(),
     builtWith: z.string().optional(),

@@ -36,6 +36,3 @@ export const homeColour = (p: Project) => (HOME_PROJECT_COLOURS ? projectAccent(
 export const homeTint = (p: Project) =>
   HOME_PROJECT_COLOURS ? (p.data.backdrop ?? projectAccent(p)) : NEUTRAL;
 
-/** Statuses of a project that runs / is in use right now: shown with a spinner. */
-const RUNNING = new Set(["live", "daily driver", "in progress"]);
-export const isRunning = (p: Project) => RUNNING.has(p.data.status);

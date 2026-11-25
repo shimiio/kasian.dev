@@ -3,6 +3,7 @@ import type { GetStaticPaths } from "astro";
 import { render } from "astro:content";
 import Shot from "../../components/Shot.astro";
 import Sprite from "../../components/Sprite.astro";
+import StatusMark from "../../components/StatusMark.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { CATEGORY_LABEL } from "../../lib/categories";
 import { TLDR_STYLE } from "../../lib/experiments";
@@ -42,9 +43,9 @@ const STORY_ON_PAPER = false;
 const lead = TLDR_STYLE === "lead";
 const intro = lead ? (d.tldr ?? d.tagline) : d.tagline;
 
-const meta: { key: string; value: string; accent?: boolean }[] = [
+const meta: { key: string; value: string; accent?: boolean; status?: boolean }[] = [
   { key: "type", value: CATEGORY_LABEL[d.category], accent: true },
-  { key: "status", value: d.status },
+  { key: "status", value: d.status, status: true },
   ...(d.platform ? [{ key: "platform", value: d.platform }] : []),
   { key: "stack", value: d.stack.join(" · ") },
   ...(d.builtWith ? [{ key: "built with", value: d.builtWith }] : []),
@@ -92,7 +93,9 @@ const links = (["live", "github", "readme"] as const)
         meta.map((m) => (
           <div data-boot-item class="col-span-2 grid grid-cols-subgrid">
             <dt class="text-dim">{m.key}</dt>
-            <dd class:list={[m.accent && "text-accent"]}>{m.value}</dd>
+            <dd class:list={[m.accent && "text-accent"]}>
+              {m.status ? <StatusMark project={project} markClass="text-accent" full /> : m.value}
+            </dd>
           </div>
         ))
       }

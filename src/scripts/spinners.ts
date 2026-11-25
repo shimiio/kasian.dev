@@ -1,7 +1,7 @@
 /**
  * Terminal spinners: every [data-spinner] element shows the same braille
- * frame, advanced here (one shared timer). Used next to the status of a
- * project that is running now (see isRunning), like a live process.
+ * frame, advanced here (one shared timer). Used as the mark of a project
+ * being built (see lib/status.ts and StatusMark.astro), like a live process.
  * Reduced motion: a still first frame.
  */
 export const SPINNER = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏";

@@ -1,7 +1,8 @@
 ---
 import { CATEGORY_LABEL } from "../lib/categories";
 import { HOME_PROJECT_COLOURS, ROW_HOVER, SITE_ACCENT_STYLE } from "../lib/experiments";
-import { isRunning, type Project, projectAccent, projectUrl, spriteTransition } from "../lib/projects";
+import StatusMark from "./StatusMark.astro";
+import { type Project, projectAccent, projectUrl, spriteTransition } from "../lib/projects";
 import Sprite from "./Sprite.astro";
 
 interface Props {
@@ -44,8 +45,7 @@ const rowStyle =
   >
     <span class="text-(--row-acc)">{CATEGORY_LABEL[d.category]}</span>
     <span class="text-(--row-dim)">
-      {isRunning(project) && <span data-spinner class="spinner text-(--row-acc)" aria-hidden="true">⠋</span>}
-      {d.status}
+      <StatusMark project={project} markClass="text-(--row-acc)" />
     </span>
   </div>
 </a>

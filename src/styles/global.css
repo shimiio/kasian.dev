@@ -345,7 +345,7 @@ html {
   font-family: var(--font-sans);
   font-size: 17px;
   line-height: 1.75;
-  color: var(--color-fg-soft);
+  color: color-mix(in oklab, var(--color-fg-soft) 80%, var(--color-dim));
 
   & > * {
     margin: 0;
@@ -371,6 +371,13 @@ html {
   & h2::before {
     content: "## ";
     color: var(--color-accent);
+  }
+
+  /* The key sentence of a section (**bold** in MDX): brighter than the rest,
+     so skimming the headings and these lines tells the whole story. */
+  & strong {
+    font-weight: 500;
+    color: var(--color-fg);
   }
 
   & a {

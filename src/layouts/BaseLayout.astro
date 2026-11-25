@@ -4,6 +4,12 @@ import "@fontsource-variable/jetbrains-mono/wght-italic.css";
 import "@fontsource-variable/inter";
 import "@fontsource/silkscreen/400.css";
 import "@fontsource/silkscreen/700.css";
+// The same files, requested early (see the preload links in <head>): the
+// pixel font and the main text font are then in place at the first paint,
+// instead of the page drawing in a fallback font and jumping when they load.
+import pixelBold from "@fontsource/silkscreen/files/silkscreen-latin-700-normal.woff2?url";
+import pixelRegular from "@fontsource/silkscreen/files/silkscreen-latin-400-normal.woff2?url";
+import monoLatin from "@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url";
 import "../styles/global.css";
 
 import { ClientRouter } from "astro:transitions";
@@ -84,6 +90,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {
+      [pixelBold, pixelRegular, monoLatin].map((href) => (
+        <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />
+      ))
+    }
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

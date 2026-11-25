@@ -5,6 +5,8 @@ import { getProjects, homeColour, plural, projectAccent, projectUrl } from "../l
 import Sprite from "./Sprite.astro";
 
 const projects = await getProjects();
+// Vim keys hint (see scripts/vim-keys.ts): h and n only mean something on a project page.
+const onProject = Astro.url.pathname.startsWith("/projects/");
 const ideas = await getCollection("ideas");
 
 const links = [
@@ -56,6 +58,9 @@ const links = [
     <div class="flex flex-wrap gap-5">
       {links.map((l) => <a href={l.href} class="hover:text-accent">{l.label}</a>)}
     </div>
+    <span class="vim-hint" aria-hidden="true">
+      j/k move · enter open{onProject && " · n next · h back"}
+    </span>
     <span>{SITE.location}</span>
   </div>
 </footer>

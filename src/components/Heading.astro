@@ -1,0 +1,40 @@
+---
+/**
+ * "## " section heading in a project story (MDX h2). The "##" is a link to
+ * the section: a click puts it in the address bar and copies it, to send
+ * someone straight there.
+ */
+interface Props {
+  id?: string;
+}
+
+const { id } = Astro.props;
+---
+
+<h2 id={id} tabindex="-1">
+  {
+    id ? (
+      <a href={`#${id}`} class="heading-link" aria-label="Link to this section" data-copy-link>
+        ##
+      </a>
+    ) : (
+      <span class="heading-link" aria-hidden="true">
+        ##
+      </span>
+    )
+  }
+  <slot />
+</h2>
+
+<script>
+  // Copy the section's link; the link itself still scrolls and updates the
+  // address bar. A short "copied" replaces the ## for a moment.
+  document.addEventListener("click", (e) => {
+    const link = (e.target as Element).closest?.<HTMLAnchorElement>("a[data-copy-link]");
+    if (!link) return;
+    navigator.clipboard?.writeText(link.href).then(() => {
+      link.dataset.copied = "";
+      setTimeout(() => delete link.dataset.copied, 1200);
+    });
+  });
+</script>

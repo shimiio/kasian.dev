@@ -368,9 +368,33 @@ html {
     margin-top: 0;
   }
 
-  & h2::before {
-    content: "## ";
+  & h2 {
+    scroll-margin-top: 2rem;
+    outline: none;
+  }
+
+  /* "##": a link to the section (Heading.astro). */
+  & .heading-link {
+    margin-right: 1ch;
     color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  & a.heading-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  & a.heading-link[data-copied]::after {
+    content: " copied";
+    font-weight: 400;
+    color: var(--color-dim);
+  }
+
+  /* Chosen with j / k: the line lights up, like the cursor line in vim. */
+  & h2:focus-visible {
+    background: color-mix(in oklab, var(--color-accent) 14%, transparent);
+    box-shadow: -0.5ch 0 0 color-mix(in oklab, var(--color-accent) 14%, transparent);
   }
 
   /* The key sentence of a section (**bold** in MDX): brighter than the rest,
@@ -434,6 +458,11 @@ html {
   flex-direction: column;
   gap: 0.6rem;
   margin: 0.75rem 0;
+
+  & .shot-frame:focus-visible {
+    outline: none;
+    background: var(--color-accent);
+  }
 
   & .shot-frame {
     --px: 4px;
@@ -504,6 +533,17 @@ html {
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--color-dim);
+}
+
+/* Vim keys hint in the footer: only where there is a keyboard and a mouse. */
+.vim-hint {
+  color: var(--color-faint);
+}
+
+@media not ((hover: hover) and (pointer: fine)) {
+  .vim-hint {
+    display: none;
+  }
 }
 
 /* ── Page transitions: native cross-document View Transitions ──

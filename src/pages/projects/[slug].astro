@@ -1,6 +1,7 @@
 ---
 import type { GetStaticPaths } from "astro";
 import { render } from "astro:content";
+import Heading from "../../components/Heading.astro";
 import Shot from "../../components/Shot.astro";
 import Sprite from "../../components/Sprite.astro";
 import StatusMark from "../../components/StatusMark.astro";
@@ -116,15 +117,16 @@ const links = (["live", "github", "readme"] as const)
     </dl>
 
     <article data-boot-section="children" data-boot-label="story/" class:list={["story", STORY_ON_PAPER && "on-paper"]}>
-      <Content components={{ Shot }} />
+      <Content components={{ Shot, h2: Heading }} />
     </article>
 
     <nav class="flex flex-wrap justify-between gap-4 border-t border-line pt-6 text-[13px]">
-      <a href="/#projects" class="text-dim hover:text-accent">← all projects</a>
+      <a href="/#projects" data-vim-back class="text-dim hover:text-accent">← all projects</a>
       {
         next && (
           <a
             href={projectUrl(next)}
+            data-vim-next
             data-live-accent={projectAccent(next)}
             class="hover:text-accent"
           >

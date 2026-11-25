@@ -41,7 +41,7 @@ const filters = [
       latest && (
         <section data-boot-section class="flex flex-col gap-4">
           <h2 data-boot-item class="text-sm font-medium text-dim">latest/</h2>
-          <FeaturedProject project={latest} data-boot-item />
+          <FeaturedProject project={latest} data-boot-item data-vim-stop />
         </section>
       )
     }
@@ -67,7 +67,7 @@ const filters = [
         </div>
       </div>
       <div class="flex flex-col border-t border-line">
-        {projects.map((p) => <ProjectRow project={p} data-boot-item />)}
+        {projects.map((p) => <ProjectRow project={p} data-boot-item data-vim-stop />)}
       </div>
     </section>
 

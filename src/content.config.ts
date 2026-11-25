@@ -4,6 +4,8 @@ import { z } from "astro/zod";
 import { CATEGORIES } from "./lib/categories";
 import { STATUSES } from "./lib/status";
 
+const month = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, "a month: YYYY-MM");
+
 const projects = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/projects" }),
   schema: z.object({
@@ -20,8 +22,11 @@ const projects = defineCollection({
     stack: z.array(z.string()),
     platform: z.string().optional(),
     builtWith: z.string().optional(),
-    /** Used for ordering; the newest one is shown as "latest". */
-    date: z.coerce.date(),
+    /** When: a month, "2026-09". started alone = still going ("since sep
+     *  2026"); with finished, a span ("sep – nov 2026"). Also the order on
+     *  home: projects still going first, then by the latest month. */
+    started: month,
+    finished: month.optional(),
     /** Path under public/, e.g. /sprites/kel.png */
     sprite: z.string(),
     /** Project colour, like a project accent in kel: tints the background,

@@ -9,10 +9,27 @@ export async function getProjects(): Promise<Project[]> {
     "projects",
     ({ data }) => import.meta.env.DEV || !data.draft,
   );
-  return all.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  // Still going first, then by the latest month (finished, or started).
+  const key = (p: Project) => `${p.data.finished ? 0 : 1}${p.data.finished ?? p.data.started}`;
+  return all.sort((a, b) => key(b).localeCompare(key(a)));
 }
 
 export const projectUrl = (p: Project) => `/projects/${p.id}/`;
+
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+const parts = (m: string) => {
+  const [y, mm] = m.split("-");
+  return { y, m: MONTHS[Number(mm) - 1] };
+};
+
+/** "since sep 2026", "may 2026", "sep – nov 2026", "nov 2025 – feb 2026". */
+export function projectWhen(p: Project): string {
+  const a = parts(p.data.started);
+  if (!p.data.finished) return `since ${a.m} ${a.y}`;
+  const b = parts(p.data.finished);
+  if (p.data.finished === p.data.started) return `${a.m} ${a.y}`;
+  return a.y === b.y ? `${a.m} – ${b.m} ${b.y}` : `${a.m} ${a.y} – ${b.m} ${b.y}`;
+}
 
 /** Unique view-transition name so a sprite "travels" between pages. */
 export const spriteTransition = (p: Project) => `sprite-${p.id}`;

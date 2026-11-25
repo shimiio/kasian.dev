@@ -6,6 +6,7 @@ import Shot from "../../components/Shot.astro";
 import Sprite from "../../components/Sprite.astro";
 import StatusMark from "../../components/StatusMark.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { external } from "../../config";
 import { CATEGORY_LABEL } from "../../lib/categories";
 import { TLDR_STYLE } from "../../lib/experiments";
 import {
@@ -13,6 +14,7 @@ import {
   type Project,
   projectAccent,
   projectUrl,
+  projectWhen,
   spriteTransition,
 } from "../../lib/projects";
 
@@ -47,6 +49,7 @@ const intro = lead ? (d.tldr ?? d.tagline) : d.tagline;
 const meta: { key: string; value: string; accent?: boolean; status?: boolean }[] = [
   { key: "type", value: CATEGORY_LABEL[d.category], accent: true },
   { key: "status", value: d.status, status: true },
+  { key: "when", value: projectWhen(project) },
   ...(d.platform ? [{ key: "platform", value: d.platform }] : []),
   { key: "stack", value: d.stack.join(" · ") },
   ...(d.builtWith ? [{ key: "built with", value: d.builtWith }] : []),
@@ -106,7 +109,7 @@ const links = (["live", "github", "readme"] as const)
             <dt class="text-dim">links</dt>
             <dd class="flex flex-wrap gap-4">
               {links.map((l) => (
-                <a href={l.href} class="underline underline-offset-3 hover:text-accent">
+                <a href={l.href} {...external(l.href)} class="underline underline-offset-3 hover:text-accent">
                   {l.label}
                 </a>
               ))}

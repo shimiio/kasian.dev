@@ -1,6 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import { LINKS, SITE } from "../config";
+import { external, LINKS, SITE } from "../config";
 import { getProjects, homeColour, plural, projectAccent, projectUrl } from "../lib/projects";
 import Sprite from "./Sprite.astro";
 
@@ -12,7 +12,8 @@ const ideas = await getCollection("ideas");
 const links = [
   { label: "github", href: LINKS.github },
   { label: "linkedin", href: LINKS.linkedin },
-  { label: "email", href: LINKS.email },
+  // A bare address works too: it becomes a mailto: link.
+  { label: "email", href: LINKS.email && !LINKS.email.includes(":") ? `mailto:${LINKS.email}` : LINKS.email },
   { label: "cv.pdf", href: LINKS.cv },
 ].filter((l) => l.href);
 ---
@@ -56,7 +57,7 @@ const links = [
 
   <div class="flex flex-wrap justify-between gap-4">
     <div class="flex flex-wrap gap-5">
-      {links.map((l) => <a href={l.href} class="hover:text-accent">{l.label}</a>)}
+      {links.map((l) => <a href={l.href} {...external(l.href)} class="hover:text-accent">{l.label}</a>)}
     </div>
     <span class="vim-hint" aria-hidden="true">
       j/k move · enter open{onProject && " · n next · h back"}

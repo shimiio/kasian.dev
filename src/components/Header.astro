@@ -1,11 +1,11 @@
 ---
-import { LINKS } from "../config";
+import { external, LINKS } from "../config";
 ---
 
 <header class="flex flex-wrap items-center justify-between gap-4">
   <a href="/" class="font-pixel text-lg hover:text-accent">kasian.dev</a>
   <nav class="flex gap-6 text-sm">
     <a href="/#projects" class="hover:text-accent">projects</a>
-    {LINKS.cv && <a href={LINKS.cv} class="text-dim hover:text-accent">cv.pdf</a>}
+    {LINKS.cv && <a href={LINKS.cv} {...external(LINKS.cv)} class="text-dim hover:text-accent">cv.pdf</a>}
   </nav>
 </header>

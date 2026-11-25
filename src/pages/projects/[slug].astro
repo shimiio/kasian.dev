@@ -5,6 +5,7 @@ import Shot from "../../components/Shot.astro";
 import Sprite from "../../components/Sprite.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { CATEGORY_LABEL } from "../../lib/categories";
+import { TLDR_STYLE } from "../../lib/experiments";
 import {
   getProjects,
   type Project,
@@ -36,6 +37,11 @@ const d = project.data;
 // Experiment toggle: put the whole story on a paper sheet instead of the dark page.
 const STORY_ON_PAPER = false;
 
+// "lead": the tl;dr replaces the tagline under the title (the tagline stays the
+// page description); "paper": tagline under the title, tl;dr on a paper card.
+const lead = TLDR_STYLE === "lead";
+const intro = lead ? (d.tldr ?? d.tagline) : d.tagline;
+
 const meta: { key: string; value: string; accent?: boolean }[] = [
   { key: "type", value: CATEGORY_LABEL[d.category], accent: true },
   { key: "status", value: d.status },
@@ -61,13 +67,14 @@ const links = (["live", "github", "readme"] as const)
           <h1 class="font-pixel text-[56px] leading-none font-bold">
             {d.title}<span class="cursor text-accent" aria-hidden="true"></span>
           </h1>
-          <p class="text-fg-soft">{d.tagline}</p>
+          {!lead && <p class="text-fg-soft">{intro}</p>}
         </div>
       </div>
+      {lead && <p class="lead max-w-[680px] font-sans text-[19px] leading-relaxed text-fg">{intro}</p>}
     </section>
 
     {
-      d.tldr && (
+      !lead && d.tldr && (
         <div class="px-corners paper-grain flex flex-col gap-2 bg-paper px-7 py-6 text-ink">
           <span class="text-xs font-bold text-accent-ink">tl;dr</span>
           <p class="font-sans text-lg leading-relaxed text-ink-soft">{d.tldr}</p>

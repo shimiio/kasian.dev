@@ -53,3 +53,8 @@ export const ROW_HOVER: "paper" | "tint" = "tint";
  *  italic mono with "// ", like comments in a code editor; "plain" = dim text
  *  after a dash. */
 export const NOTES: "comment" | "plain" = CLEAN_SLATE ? "plain" : "comment";
+
+/** Project page intro: "lead" = the tl;dr (or the tagline, without one) as
+ *  larger text under the title, no card; "paper" = the tagline under the
+ *  title and the tl;dr on a paper card. */
+export const TLDR_STYLE: "lead" | "paper" = "lead";

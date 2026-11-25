@@ -31,9 +31,11 @@ interface Props {
   backdrop?: string;
   /** Boot animation on this page (see src/scripts/boot.ts). */
   boot?: "home" | "project";
+  /** Link preview image (see src/pages/og); the site's by default. */
+  ogImage?: string;
 }
 
-const { title, description = SITE.description, accent, backdrop, boot } = Astro.props;
+const { title, description = SITE.description, accent, backdrop, boot, ogImage = "/og/index.png" } = Astro.props;
 const pageAccent = accent ?? SITE_ACCENT;
 const projects = await getProjects();
 
@@ -83,12 +85,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#0c0c0e" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(ogImage, Astro.site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={fullTitle} />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="generator" content={Astro.generator} />
     <!-- In-page navigation: links swap the page without a full reload, with
          view transitions in every browser that has them (Firefox too). -->

@@ -546,6 +546,18 @@ html {
   }
 }
 
+/* 404: "back home", lit like a selected line on hover. */
+.back-link {
+  margin-left: -0.5ch;
+  padding: 0.15em 0.5ch;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+
+  &:hover {
+    background: color-mix(in oklab, var(--color-accent) 16%, transparent);
+  }
+}
+
 /* ── Page transitions: native cross-document View Transitions ──
    Two flavours to compare. Swap the values below to switch:
      smooth  — ease-out curve, a bit longer (current)

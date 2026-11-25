@@ -2,10 +2,21 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="404">
-  <section class="flex flex-col gap-4">
-    <h1 class="font-pixel text-5xl font-bold">404<span class="cursor text-accent" aria-hidden="true"></span></h1>
-    <p class="text-muted">Nothing here. Maybe it's still an idea.</p>
-    <a href="/" class="self-start underline underline-offset-4 hover:text-accent">← back home</a>
+<BaseLayout title="404" boot="project">
+  <section class="flex flex-col gap-6">
+    <h1 data-boot-text="char" class="font-pixel text-5xl font-bold">
+      404<span class="cursor text-accent" aria-hidden="true"></span>
+    </h1>
+    <div data-boot-text="word" class="flex flex-col gap-1 text-sm">
+      <p><span class="text-faint">$</span> cd <span data-path>/somewhere</span></p>
+      <p class="text-dim">cd: no such page: <span data-path>/somewhere</span></p>
+    </div>
+    <!-- The path that was asked for, before the boot animation types it out. -->
+    <script is:inline>
+      document.querySelectorAll("[data-path]").forEach((el) => (el.textContent = location.pathname));
+    </script>
+    <p data-boot-text="word" class="text-muted">Maybe it's still an idea.</p>
+    <a data-boot-text="word" href="/" class="back-link self-start">← back home</a>
   </section>
 </BaseLayout>
+

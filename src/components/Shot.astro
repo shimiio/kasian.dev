@@ -8,6 +8,9 @@
  * A clip (.mp4) plays muted on a loop while it is on screen, like a GIF; its
  * poster is the .webp next to it with the same name (first frame). With
  * reduced motion it waits on the poster, with controls.
+ *
+ * A click opens it at full size over the page (Esc, a click or the button
+ * closes it); a clip goes on from the same moment.
  */
 interface Props {
   /** Path under public/: an image, or an .mp4 clip. */
@@ -26,7 +29,7 @@ const poster = clip ? src.replace(/\.mp4$/, ".webp") : undefined;
 ---
 
 <figure class="shot">
-  <div class="shot-frame px-corners">
+  <button type="button" class="shot-frame px-corners" aria-label={`Open full size: ${alt}`}>
     {
       clip ? (
         <video
@@ -45,7 +48,7 @@ const poster = clip ? src.replace(/\.mp4$/, ".webp") : undefined;
         <img src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
       )
     }
-  </div>
+  </button>
   {caption && <figcaption>{caption}</figcaption>}
 </figure>
 
@@ -75,4 +78,39 @@ const poster = clip ? src.replace(/\.mp4$/, ".webp") : undefined;
   };
 
   document.addEventListener("astro:page-load", setup);
+
+  // Full size: one <dialog> per page, made on first use.
+  const open = (frame: HTMLElement) => {
+    const media = frame.querySelector<HTMLImageElement | HTMLVideoElement>("img, video");
+    if (!media) return;
+    let dialog = document.querySelector<HTMLDialogElement>("dialog.shot-zoom");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.className = "shot-zoom";
+      dialog.addEventListener("click", () => dialog!.close());
+      dialog.addEventListener("close", () => dialog!.replaceChildren());
+      document.body.append(dialog);
+    }
+    const copy = media.cloneNode() as HTMLImageElement | HTMLVideoElement;
+    copy.removeAttribute("data-shot-clip");
+    copy.removeAttribute("loading");
+    if (copy instanceof HTMLVideoElement && media instanceof HTMLVideoElement) {
+      copy.muted = true;
+      copy.currentTime = media.currentTime;
+      if (reduced.matches) copy.controls = true;
+      else copy.play().catch(() => (copy.controls = true));
+      // Controls take clicks themselves; anywhere else closes.
+      copy.addEventListener("click", (e) => copy.controls && e.stopPropagation());
+    }
+    const close = document.createElement("span");
+    close.className = "shot-zoom-close";
+    close.textContent = "esc ✕";
+    dialog.replaceChildren(copy, close);
+    dialog.showModal();
+  };
+
+  document.addEventListener("click", (e) => {
+    const frame = (e.target as Element).closest?.<HTMLElement>(".shot-frame");
+    if (frame) open(frame);
+  });
 </script>

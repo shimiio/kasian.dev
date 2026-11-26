@@ -492,6 +492,32 @@ html {
     content: "↑ ";
     color: var(--color-faint);
   }
+
+  /* A clip that plays on hover: a small mark until it does. */
+  & .shot-frame[data-hover-play] {
+    position: relative;
+  }
+
+  & .shot-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    padding: 8px 14px;
+    font-family: var(--font-pixel);
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--color-bg);
+    background: var(--color-accent);
+    box-shadow: 0 0 0 4px rgb(12 12 14 / 0.55);
+    pointer-events: none;
+    transition: opacity 150ms ease;
+  }
+
+  & .shot-frame[data-playing] .shot-play,
+  & .shot-frame:has(video[controls]) .shot-play {
+    opacity: 0;
+  }
 }
 
 /* Full-size view of a shot (opened from Shot.astro). */

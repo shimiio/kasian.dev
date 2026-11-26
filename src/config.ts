@@ -3,7 +3,7 @@ export const SITE = {
   domain: "kasian.dev",
   location: "Vienna",
   description:
-    "My projects and ideas from the other side: the stuff that doesn't make it into a README or a CV.",
+    "A look at my projects from another angle: the stuff that doesn't make it into a README or a CV.",
 };
 
 // Contact links. email may be a bare address (it becomes mailto:). An empty

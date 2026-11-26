@@ -38,7 +38,7 @@ export const SITE_ACCENT_STYLE: "lime" | "neutral" = "neutral";
 
 /** Project colours outside project pages: category labels and spinners in
  *  rows, the latest card's tint, row hover, footer tiles. Off: all neutral. */
-export const HOME_PROJECT_COLOURS = CLEAN_SLATE ? false : true;
+export const HOME_PROJECT_COLOURS = true; // kept on with the clean slate: grey home, colour only where a project is
 
 /** "latest" card on home: "paper" = light paper card, "tint" = dark glass card
  *  tinted with the project's colour (a light neutral tint without

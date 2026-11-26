@@ -9,7 +9,7 @@ export const getStaticPaths = (async () => {
   const projects = await getProjects();
   const site: OgCard = {
     title: "Pavlo Kasian",
-    text: "Projects and ideas from the other side: the stuff that doesn't make it into a README or a CV.",
+    text: "A look at my projects from another angle: the stuff that doesn't make it into a README or a CV.",
     colour: SITE_BACKDROP,
     sprites: projects.map((p) => p.data.sprite),
   };

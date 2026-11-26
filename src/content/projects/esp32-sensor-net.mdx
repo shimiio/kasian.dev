@@ -5,7 +5,7 @@ blurb: Two sensor chips talk to a main ESP32, which streams over Wi-Fi to a Pyth
 category: experiment
 status: archived
 statusLabel: prototype
-stack: [ESP32, Python, LLM]
+stack: [ESP32, Arduino, Python, Ollama]
 started: 2026-05
 finished: 2026-05
 sprite: /sprites/esp32.png
@@ -14,14 +14,20 @@ links:
     github: https://github.com/shimiio/esp32-iot-network
 ---
 
-## what it is
+## a break from pare
 
-Two ESP32 chips with sensors send their readings directly to a main chip. The main chip passes everything through the router to my laptop, where a Python server shows the data, and an LLM can look at it and tell me what's going on.
+**esp32 started as a break.** I was building [pare](/projects/pare/) every single day, switching between backend and frontend, and the frontend came much harder to me. At some point I was just tired, and out of nowhere I thought of ESP32 chips. After a short think about what I wanted to build, I ordered them on Amazon the next day.
 
-## why
+## touching something real
 
-[TODO: what made you want to try this.]
+**What I don't love about programming is how abstract all of it is.** I wanted to see real hardware working together with those abstractions. Hardware wasn't completely new to me: in college we once built something like a traffic light on a simple chip. A tiny experience, but it was a start.
 
-## what I got out of it
+Back then I was also deep into cybersecurity, so I wanted a device that lives on a network. The system put itself together: three chips, two sensors, an OLED screen, my laptop, and a local LLM hooked up to the physical side.
 
-[TODO: one or two things you learned.]
+The sensors were only a stand-in: real numbers instead of fake ones. The point was the network. Chips collect data in one place and send it straight to a main chip, which passes it on. The LLM was a formality too. I gave it a weak prompt and its analysis was weak, but it pulled the data and looked at it, and that was enough.
+
+## my own code this time
+
+**Unlike [kel](/projects/kel/), I wrote almost all of the Arduino code myself.** AI helped at the start, then I wanted to write the logic on my own. There were bugs, of course: at one point the hub flooded the Python server nonstop, the chip got hot, and the button reacted with a huge delay.
+
+Once I understood how it all works, I took it apart. One day I'd like to build something real from it: a local LLM at home that can use tools, where I ask it for something and it switches on an ESP32 or another device.

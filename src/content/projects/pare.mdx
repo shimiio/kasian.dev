@@ -14,15 +14,30 @@ links:
   github: https://github.com/shimiio/pare-app
   live: https://pare.kasian.dev
 ---
+## why a subscription manager
 
-## why
+**I wanted to work in Austria, so I picked the stack first: ASP.NET and React.** After about a week of comparing options, it looked like the most popular combo there. (It is, just mostly not at junior level.) The idea had to be practical but simple to reason about, so it became a tool for my own monthly payments. Before starting, I spent two weeks learning to set it all up, and wrote it down as a [starter template](https://github.com/shimiio/dotnet-react-starter) to build pare on.
 
-On the surface, pare is a subscription manager. Honestly, the product was never the point: I wanted to understand Clean Architecture and CQRS by actually living with them, so pare is over-engineered on purpose.
+## over-engineered on purpose
 
-## the build
+**From day one I went with Clean Architecture, with two weeks of ASP.NET behind me** and a lot of confidence from C++. Later I added CQRS on top. For a project like this it's total overkill, and that was the point: I wanted to know these things by living with them. Every task went into Linear, because my weather app had taught me that tasks in a notepad get lost.
 
-[TODO: what the layers looked like, what clicked, what felt like overkill.]
+It partly paid off. After a C# talk at a meetup I stayed to ask the speaker questions, and everything I knew came from this project, not from a book. It also showed me the pain: to change one thing, you touch ten files.
 
-## now
+## a server inside my laptop
 
-[TODO: is it still running, what you'd keep and what you'd drop next time.]
+**I had no idea how to deploy a backend.** Then YouTube served me a random DevOps video: how infrastructure grows from one person to a big company. I didn't even know you could just rent your own server, and after that, free hosting was off the table. Reading up on VPS, I noticed a familiar name, Hetzner: a senior developer I know had mentioned it a year earlier, so that's what I picked. I'd never set up a server, so first I built a pretend VPS in VirtualBox to practice on. I even faked DNS so it had a real name, not a local IP.
+
+## hacking it myself
+
+**By then I was hooked on cybersecurity, so before going live I attacked my own site.** From a second laptop booted into Kali Linux, with no limits: my server, my network, my laptops. There wasn't much to hack, but I still found real holes: refresh tokens stored in plain text, a login that let a script guess a weak test password, and a currency API key sitting in the frontend bundle. All fixed; the [full audit](https://github.com/shimiio/pare-app/blob/main/SECURITY_AUDIT.md) is in the repo. Then pare went to a real Hetzner VPS through CI/CD.
+
+## written by hand
+
+**I wrote pare without AI agents.** I had no AI subscription at all, only chats in the browser for examples, and I typed the code myself instead of copy-pasting. I used Copilot's agent just a few times: when I was desperate over a bug, and for the charts, which I didn't know how to build. It made a working mock, and that amazed me: the first time an agent really built something for me. [kel](/projects/kel/) went the other way.
+
+Once pare was done, I let an agent in for the extras: it made the site work on phones, and it will do the coming redesign. The base build, the whole project, is mine.
+
+## how it is now
+
+**pare is live, and I use it for all my monthly costs, not only subscriptions,** like my internet bill. As a study project it did its job. I won't build another over-engineered one, and next time I'll try vertical slices instead of Clean Architecture.

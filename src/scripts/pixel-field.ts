@@ -22,9 +22,13 @@ const FADE_MS = 1200; // colour change on entering / leaving a project
 const BG = [12, 12, 14]; // --color-bg
 
 // The glow: radius (share of the larger screen side), weight, and a slow
-// Lissajous path (periods in seconds). Kept as a list: the drawing below
-// handles several blobs with dithered edges between them.
-const BLOBS = [{ r: 0.42, w: 1.0, px: 140, py: 190, ox: 0.25, oy: 0.2, phase: 0 }] as const;
+// Lissajous path: centre (ox, oy) and swing (ax, ay) as shares of the screen,
+// periods in seconds. It crosses the whole width, left edge to right edge,
+// and the top two thirds. Kept as a list: the drawing below handles several
+// blobs with dithered edges between them.
+const BLOBS = [
+  { r: 0.42, w: 1.0, px: 140, py: 190, ox: 0.5, oy: 0.35, ax: 0.36, ay: 0.25, phase: 0 },
+] as const;
 
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
 
@@ -152,8 +156,8 @@ if (canvas && ctx) {
     const state = current(now);
     const side = Math.max(cols, rows * TALL) * state.size; // see TALL
     const blobs = BLOBS.map((b, i) => ({
-      x: (b.ox + 0.3 * Math.sin((t / b.px) * 2 * Math.PI + b.phase)) * cols,
-      y: (b.oy + 0.25 * Math.cos((t / b.py) * 2 * Math.PI + b.phase)) * rows,
+      x: (b.ox + b.ax * Math.sin((t / b.px) * 2 * Math.PI + b.phase)) * cols,
+      y: (b.oy + b.ay * Math.cos((t / b.py) * 2 * Math.PI + b.phase)) * rows,
       r2: (b.r * side) ** 2,
       w: state.weights[i],
     }));
@@ -199,11 +203,33 @@ if (canvas && ctx) {
     ctx.putImageData(image, 0, 0);
   };
 
+  // Pinch zoom (touchpad or phone): the glass column blurs whatever is under
+  // it, so a moving field makes the browser redo that blur for the whole,
+  // now magnified, column on every frame, and zooming stutters. While the
+  // page is zoomed in, and for a moment after any zoom step, the field holds
+  // still, and html[data-zoomed] swaps the blur for a darker plain glass
+  // (global.css).
+  const vv = window.visualViewport;
+  let zoomUntil = 0;
+  let scale = vv?.scale ?? 1;
+  vv?.addEventListener("resize", () => {
+    if (Math.abs(vv.scale - scale) < 0.001) return; // toolbars, not a zoom
+    scale = vv.scale;
+    zoomUntil = performance.now() + 400;
+  });
+  const zoomed = (now: number) => scale > 1.01 || now < zoomUntil;
+
   // Motion is drawn at FPS; while colours fade, every frame is drawn so the
   // fade itself stays smooth.
   let last = 0;
   const loop = (now: number) => {
     retarget(now);
+    const z = zoomed(now);
+    if (z !== "zoomed" in root.dataset) root.toggleAttribute("data-zoomed", z);
+    if (z) {
+      if (!reduced.matches) requestAnimationFrame(loop);
+      return;
+    }
     if (now - last >= 1000 / FPS || fadeT(now) < 1) {
       last = now;
       draw(now);

@@ -1,6 +1,5 @@
 ---
 import "@fontsource-variable/jetbrains-mono";
-import "@fontsource-variable/jetbrains-mono/wght-italic.css";
 import "@fontsource-variable/inter";
 import "@fontsource/silkscreen/400.css";
 import "@fontsource/silkscreen/700.css";
@@ -31,9 +30,11 @@ interface Props {
   boot?: "home" | "project";
   /** Link preview image (see src/pages/og); the site's by default. */
   ogImage?: string;
+  /** Keep the page out of search results (the 404). */
+  noindex?: boolean;
 }
 
-const { title, description = SITE.description, accent, backdrop, boot, ogImage = "/og/index.png" } = Astro.props;
+const { title, description = SITE.description, accent, backdrop, boot, ogImage = "/og/index.png", noindex = false } = Astro.props;
 // Background field colour: on a project page its backdrop (or accent), else
 // a near-neutral grey.
 const pageBackdrop = backdrop ?? accent ?? SITE_BACKDROP;
@@ -56,7 +57,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     {
       [pixelBold, pixelRegular, monoLatin].map((href) => (
         <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />
@@ -76,7 +77,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={fullTitle} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="generator" content={Astro.generator} />
     <!-- In-page navigation: links swap the page without a full reload, with
          view transitions in every browser that has them (Firefox too). -->
     <ClientRouter />

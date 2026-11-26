@@ -14,7 +14,7 @@
   --color-fg-soft: #c9c7c3;
   --color-muted: #a1a1aa;
   --color-dim: #8b8b93;
-  --color-faint: #5d5d66;
+  --color-faint: #808089; /* was #5d5d66 (3:1); now ≥ 4.5:1 on the glass */
   --color-accent: #e8e6e3;
 
   /* Text selection: light "paper" with dark ink. */

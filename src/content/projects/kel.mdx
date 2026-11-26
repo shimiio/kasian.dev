@@ -26,19 +26,25 @@ links:
 
 ## five tabs, every single time
 
-**Every session started the same way: reopen five terminal tabs and `cd` into the right folders.** That's how working on [pare](/projects/pare/) went.
+Working on Pare, every session started the same way: reopen five tabs, cd into the right folders. There was no big breaking point, just a constant background annoyance. I stopped closing tabs. I even stopped shutting down my laptop: pressing the power button sent it to hibernation, so I could come back to exactly where I left off.
 
 Two projects in parallel was worse. Switching meant setting up another terminal from scratch, and sometimes that alone killed the urge to switch at all.
 
 ## why not build my own?
 
-**Instead of hunting for a ready-made terminal, I got hooked on the idea of building one.** I picked Rust because I'd never touched it, and my C++ background felt like a decent start.
+I did try a ready-made one, Warp. It brought back my last directory and tabs, which helped, but it ate a lot of RAM, had no real projects to switch between, and some features were paid. It didn't fully solve the problem, and after a while I stopped using it.
+
+So I thought: why not just write my own? In Rust, because I'd never touched it. I had about a year of C++ behind me, mostly practice projects from tutorials and a long text-only course, and everyone kept saying Rust is the safer replacement for C++. A terminal in Rust sounded logical.
 
 ## a month alone, then Claude Code
 
-**Solo, I learned how a PTY works, how a terminal thinks in cells and grids, and how rendering fits in.** After about a month of on-and-off work it hit me how big the job really was. I got scared I'd spend forever on something that mattered only to me.
+For about a month, on and off, I worked on it alone. Mostly I was figuring things out: how a PTY works, how a terminal draws, how a character ends up on screen. What surprised me most was the cells. The screen is a grid of them, each holding one character, and even the cursor is just a position moving between cells. You never notice that while using a terminal. Who knew there were cells at all?
 
-**So I brought in Claude Code, and we wrote the terminal together.** At first I tried to understand every line. The further we got, the harder that became, and in the end I handed the code over to the agent almost entirely.
+I got the ideas, but drawing the actual output was where I got stuck. Rendering was harder than I expected, and somewhere around there I saw how big the whole job was. I got scared I'd spend forever on something that mattered only to me.
+
+So I brought in Claude Code, and we wrote the terminal together. At first I tried to understand every line. The further we got, the harder that became, and in the end the agent wrote almost all of the code. Rendering is still mostly a black box to me.
+
+I'm fine with that. I wanted a better tool for myself, and now I have one. On my own it would have taken months, and I'd have burned out before it worked like this.
 
 <Shot
   src="/media/kel/settings.mp4"
@@ -46,9 +52,11 @@ Two projects in parallel was worse. Switching meant setting up another terminal 
   caption="settings: glass, grain, corners, font; every change shows at once"
 />
 
-## every project one keypress away
+## how it is now
 
-**I use kel almost every day, for projects and as a plain terminal.** Each project lives in it as a saved set of tabs, so I don't lose context.
+I use Kel almost every day, for projects and as a plain terminal. Each project is a saved set of tabs, so I come back to the same place instead of rebuilding it.
+
+It started as a tool for myself. But if the idea looks interesting to you, take the code and change it however you like.
 
 [pare](/projects/pare/), [discordLLM](/projects/discord-llm/), or something new: I jump between them in seconds.
 

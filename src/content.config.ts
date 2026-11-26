@@ -63,4 +63,17 @@ const ideas = defineCollection({
   }),
 });
 
-export const collections = { projects, ideas };
+/** Notes on the home timeline for months without a project (or any month):
+ *  what was going on instead. */
+const timeline = defineCollection({
+  loader: file("src/content/timeline.json"),
+  schema: z.object({
+    id: z.string(),
+    from: month,
+    /** Last month, for a note that covers a few. */
+    to: month.optional(),
+    text: z.string(),
+  }),
+});
+
+export const collections = { projects, ideas, timeline };

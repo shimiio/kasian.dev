@@ -46,10 +46,8 @@ export const SITE_BACKDROP = "#9db0cc"; // cool steel grey
 
 export const projectAccent = (p: Project) => p.data.accent ?? SITE_ACCENT;
 
-/** A project's colour outside its own page (rows, latest card, tiles):
- *  neutral without HOME_PROJECT_COLOURS. Tint: for surfaces, its backdrop. */
+/** A project's colour outside its own page (timeline, footer tiles): neutral
+ *  without HOME_PROJECT_COLOURS. */
 const NEUTRAL = "#e8e6e3";
 export const homeColour = (p: Project) => (HOME_PROJECT_COLOURS ? projectAccent(p) : NEUTRAL);
-export const homeTint = (p: Project) =>
-  HOME_PROJECT_COLOURS ? (p.data.backdrop ?? projectAccent(p)) : NEUTRAL;
 

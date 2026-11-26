@@ -40,15 +40,6 @@ export const SITE_ACCENT_STYLE: "lime" | "neutral" = "neutral";
  *  rows, the latest card's tint, row hover, footer tiles. Off: all neutral. */
 export const HOME_PROJECT_COLOURS = true; // kept on with the clean slate: grey home, colour only where a project is
 
-/** "latest" card on home: "paper" = light paper card, "tint" = dark glass card
- *  tinted with the project's colour (a light neutral tint without
- *  HOME_PROJECT_COLOURS). */
-export const LATEST_STYLE: "paper" | "tint" = "tint";
-
-/** Project row on hover: "paper" = flips to paper, "tint" = the project's
- *  colour (or a neutral light) shows through, like a selected line. */
-export const ROW_HOVER: "paper" | "tint" = "tint";
-
 /** Asides ("not built yet, maybe never", "collected so far"): "comment" =
  *  italic mono with "// ", like comments in a code editor; "plain" = dim text
  *  after a dash. */
@@ -58,3 +49,4 @@ export const NOTES: "comment" | "plain" = CLEAN_SLATE ? "plain" : "comment";
  *  larger text under the title, no card; "paper" = the tagline under the
  *  title and the tl;dr on a paper card. */
 export const TLDR_STYLE: "lead" | "paper" = "lead";
+

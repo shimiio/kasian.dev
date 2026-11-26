@@ -1,0 +1,341 @@
+---
+/**
+ * Home: the projects as a year, newest at the top, drawn
+ * like `git log --graph`. One row per month; a project's line runs in its
+ * colour from the month it started to the month it ended, with its entry at
+ * the top end. One started while another was going sits on a side lane,
+ * joined to it (esp32 during pare, bob during kel). Quiet months fold into
+ * one dotted row, with a note on what was going on instead (timeline.json);
+ * ideas sit above it all as what's next, folded until opened.
+ */
+import type { CollectionEntry } from "astro:content";
+import { CATEGORY_LABEL } from "../lib/categories";
+import { type GraphRow, graphRows, monthIndex, monthName, monthYear } from "../lib/timeline";
+import { homeColour, projectAccent, projectUrl, projectWhen, type Project, spriteTransition } from "../lib/projects";
+import Sprite from "./Sprite.astro";
+import StatusMark from "./StatusMark.astro";
+
+interface Props {
+  projects: Project[];
+  ideas: CollectionEntry<"ideas">[];
+  notes?: CollectionEntry<"timeline">[];
+}
+
+const { projects, ideas, notes = [] } = Astro.props;
+// Notes that fall into a row (a quiet run or a month).
+const notesFor = (row: GraphRow) =>
+  notes.filter((n) => {
+    const a = monthIndex(n.data.from);
+    const b = n.data.to ? monthIndex(n.data.to) : a;
+    return a <= row.to && b >= row.from;
+  });
+const { rows, lanes } = graphRows(projects);
+
+const label = (row: GraphRow, i: number) => {
+  const a = monthName(row.from);
+  const name = row.gap && row.from !== row.to ? `${a}–${monthName(row.to)}` : a;
+  const prev = rows[i - 1];
+  const showYear = i === 0 || (prev && monthYear(prev.from) !== monthYear(row.to));
+  return { name, year: showYear ? String(monthYear(row.to)) : "" };
+};
+const lastRow = rows.length - 1;
+---
+
+<ol class="yg" style={`--lanes: ${lanes}`}>
+  {
+    ideas.length > 0 && (
+      <li id="ideas" data-boot-item class="yg-row scroll-mt-8">
+        <span class="yg-month">next</span>
+        <span class="yg-lanes" aria-hidden="true">
+          <i class="yg-spine" style="top: var(--node-y); bottom: 0" />
+          <i class="yg-node yg-hollow" style="--x: 0" />
+        </span>
+        <details class="yg-body yg-ideas">
+          <summary class="text-sm text-dim">
+            ideas <span class="text-faint">{ideas.length}</span>
+            <span class="yg-sprouts" aria-hidden="true">
+              {ideas.map(() => <Sprite src="/sprites/idea.png" size={24} />)}
+            </span>
+            <span class="note note-inline">not built yet, maybe never</span>
+          </summary>
+          <ul class="flex flex-col gap-2 pt-2 pb-2 text-muted">
+            {ideas.map((idea) => (
+              <li class="flex items-center gap-3">
+                <Sprite src="/sprites/idea.png" size={24} />
+                <span>
+                  {idea.data.title}
+                  {idea.data.note && <>{" "}<span class="note note-inline">{idea.data.note}</span></>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      </li>
+    )
+  }
+  {
+    rows.map((row, i) => {
+      const { name, year } = label(row, i);
+      return (
+        <li data-boot-item class:list={["yg-row", row.gap && "yg-gap"]}>
+          <span class="yg-month">
+            {name}
+            {year && <span class="yg-year">{year}</span>}
+          </span>
+          <span class="yg-lanes" aria-hidden="true">
+            {/* The year itself: a faint dotted line under every lane 0. */}
+            <i class="yg-spine" style={i === lastRow ? "top: 0; height: var(--node-y)" : "top: 0; bottom: 0"} />
+            {row.lanes.map((l, x) => {
+              if (!l.span) return null;
+              const c = homeColour(l.span.project);
+              const top = l.up || !l.node ? "0" : "var(--node-y)";
+              const bottom = l.down || !l.node ? "0" : "calc(100% - var(--node-y))";
+              return (
+                <>
+                  <i class="yg-seg" style={`--x: ${x}; top: ${top}; bottom: ${bottom}; background: ${c}`} />
+                  {l.node && x > 0 && <i class="yg-bridge" style={`--x: ${x}; background: ${c}`} />}
+                  {l.node && (
+                    <i
+                      class:list={["yg-node", l.node === "start" && "yg-start"]}
+                      style={`--x: ${x}; --c: ${c}`}
+                    />
+                  )}
+                </>
+              );
+            })}
+          </span>
+          <div class="yg-body">
+            {row.gap && <span class="text-sm text-faint">between projects</span>}
+            {notesFor(row).map((n) => (
+              <span class="yg-note">{n.data.text}</span>
+            ))}
+            {row.starts.map((s) => (
+              <span class="text-sm text-faint">
+                <span style={`color: ${homeColour(s.project)}`}>{s.project.data.title}</span> started
+              </span>
+            ))}
+            {row.ends.map((s) => {
+              const p = s.project;
+              const d = p.data;
+              const c = homeColour(p);
+              return (
+                <a
+                  href={projectUrl(p)}
+                  data-vim-stop
+                  data-live-accent={projectAccent(p)}
+                  style={`--row-p: ${c}`}
+                  class="row yg-entry px-corners"
+                >
+                  <Sprite src={d.sprite} size={36} transition={spriteTransition(p)} />
+                  <span class="flex min-w-0 flex-col gap-1">
+                    <span class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                      <span class="text-[17px] font-bold">{d.title}</span>
+                      <span class="text-xs text-(--row-dim)">
+                        <span class="text-(--row-acc)">{CATEGORY_LABEL[d.category]}</span> ·{" "}
+                        <StatusMark project={p} markClass="text-(--row-acc)" /> · {projectWhen(p)}
+                      </span>
+                    </span>
+                    <span class="text-(--row-muted)">{d.blurb}</span>
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        </li>
+      );
+    })
+  }
+</ol>
+
+<style>
+  .yg {
+    --lane-w: 22px;
+    --node-y: 26px; /* level with the first line of an entry */
+    --line: 4px;
+    --node: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .yg-row {
+    display: grid;
+    grid-template-columns: 4.5rem calc(var(--lanes) * var(--lane-w)) minmax(0, 1fr);
+    column-gap: 0.75rem;
+    min-height: 2.5rem;
+  }
+
+  .yg-month {
+    padding-top: calc(var(--node-y) - 0.75em);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-dim);
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .yg-year {
+    font-size: 11px;
+    color: var(--color-faint);
+  }
+
+  .yg-gap .yg-month {
+    color: var(--color-faint);
+  }
+
+  .yg-lanes {
+    position: relative;
+  }
+
+  .yg-lanes > i {
+    position: absolute;
+    display: block;
+  }
+
+  .yg-spine {
+    left: calc(var(--lane-w) / 2 - 1px);
+    width: 2px;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--color-faint) 0 4px,
+      transparent 4px 10px
+    );
+  }
+
+  .yg-seg {
+    left: calc(var(--x) * var(--lane-w) + var(--lane-w) / 2 - var(--line) / 2);
+    width: var(--line);
+  }
+
+  .yg-bridge {
+    left: calc(var(--lane-w) / 2);
+    width: calc(var(--x) * var(--lane-w));
+    top: calc(var(--node-y) - var(--line) / 2);
+    height: var(--line);
+  }
+
+  .yg-node {
+    left: calc(var(--x) * var(--lane-w) + var(--lane-w) / 2 - var(--node) / 2);
+    top: calc(var(--node-y) - var(--node) / 2);
+    width: var(--node);
+    height: var(--node);
+    background: var(--c);
+  }
+
+  /* Where a project began: a smaller hollow mark on its line. */
+  .yg-start {
+    background: var(--color-bg);
+    box-shadow: inset 0 0 0 3px var(--c);
+  }
+
+  .yg-hollow {
+    background: var(--color-bg);
+    box-shadow: inset 0 0 0 2px var(--color-dim);
+  }
+
+  .yg-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.25rem;
+    padding: calc(var(--node-y) - 0.75em) 0 0.5rem;
+    min-width: 0;
+  }
+
+  .yg-gap .yg-body {
+    padding-bottom: 0.75rem;
+  }
+
+  /* What was going on instead of a project. */
+  .yg-note {
+    max-width: 34rem;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-dim);
+  }
+
+  /* Ideas fold into one line: the count and three sprouts, open on click. */
+  .yg-ideas > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.6rem;
+    margin-top: -4px; /* the sprouts make the line taller */
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .yg-ideas > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* A small pixel button, so it reads as something to press. */
+  .yg-ideas > summary::after {
+    content: "open ▸";
+    /* Stepped corners, 2px stairs (like .px-corners). */
+    clip-path: polygon(0 4px, 2px 4px, 2px 2px, 4px 2px, 4px 0, calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px));
+    padding: 3px 9px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--color-fg-soft);
+    background: rgb(255 255 255 / 0.09);
+    transition: background-color 0.15s ease;
+  }
+
+  .yg-ideas[open] > summary::after {
+    content: "close ▾";
+  }
+
+  .yg-ideas > summary:hover::after,
+  .yg-ideas > summary:focus-visible::after {
+    color: var(--color-bg);
+    background: var(--color-fg);
+  }
+
+  .yg-sprouts {
+    display: inline-flex;
+    gap: 2px;
+  }
+
+  .yg-body:has(.yg-entry) {
+    padding-top: 0;
+  }
+
+  .yg-entry {
+    --px: 4px;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    align-items: start;
+    gap: 0.9rem;
+    padding: 0.75rem 0.75rem 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  @media (max-width: 40rem) {
+    .yg-row {
+      grid-template-columns: 2.25rem calc(var(--lanes) * var(--lane-w)) minmax(0, 1fr);
+      column-gap: 0.5rem;
+    }
+    .yg-entry {
+      grid-template-columns: 24px minmax(0, 1fr);
+      gap: 0.6rem;
+      padding-left: 0.5rem;
+    }
+    .yg-entry > :global(img) {
+      width: 24px;
+      height: 24px;
+      margin-top: 1px;
+    }
+  }
+</style>
+
+<script>
+  // The footer's "ideas" link (/#ideas) opens the folded list.
+  document.addEventListener("astro:page-load", () => {
+    const open = () => {
+      if (location.hash === "#ideas") document.querySelector<HTMLDetailsElement>("#ideas details")?.setAttribute("open", "");
+    };
+    open();
+    window.addEventListener("hashchange", open);
+  });
+</script>

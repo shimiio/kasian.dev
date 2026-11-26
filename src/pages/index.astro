@@ -1,24 +1,12 @@
 ---
 import { getCollection } from "astro:content";
-import FeaturedProject from "../components/FeaturedProject.astro";
-import ProjectRow from "../components/ProjectRow.astro";
-import Sprite from "../components/Sprite.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { CATEGORIES, CATEGORY_LABEL } from "../lib/categories";
+import YearGraph from "../components/YearGraph.astro";
 import { getProjects } from "../lib/projects";
 
 const projects = await getProjects();
 const ideas = await getCollection("ideas");
-const latest = projects[0];
-
-// Only offer filters for categories that actually have projects.
-const filters = [
-  { id: "all", label: "all" },
-  ...CATEGORIES.filter((c) => projects.some((p) => p.data.category === c)).map((c) => ({
-    id: c,
-    label: CATEGORY_LABEL[c],
-  })),
-];
+const timelineNotes = await getCollection("timeline");
 ---
 
 <BaseLayout boot="home">
@@ -36,82 +24,12 @@ const filters = [
       </p>
     </section>
 
-    {
-      latest && (
-        <section data-boot-section class="flex flex-col gap-4">
-          <h2 data-boot-item class="text-sm font-medium text-dim">latest/</h2>
-          <FeaturedProject project={latest} data-boot-item data-vim-stop />
-        </section>
-      )
-    }
-
     <section id="projects" data-boot-section class="flex scroll-mt-8 flex-col gap-4">
-      <div class="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 data-boot-item class="text-sm font-medium text-dim">
-          projects/ <span class="text-faint" data-count>{projects.length}</span>
-        </h2>
-        <div data-boot-item class="flex flex-wrap gap-2" role="group" aria-label="Filter projects">
-          {
-            filters.map((f) => (
-              <button
-                type="button"
-                data-filter={f.id}
-                aria-pressed={f.id === "all" ? "true" : "false"}
-                class="filter min-h-8 cursor-pointer border border-line-strong px-3 py-1 text-[13px] text-muted hover:border-dim"
-              >
-                {f.label}
-              </button>
-            ))
-          }
-        </div>
-      </div>
-      <div class="flex flex-col border-t border-line">
-        {projects.map((p) => <ProjectRow project={p} data-boot-item data-vim-stop />)}
-      </div>
+      <h2 data-boot-item class="text-sm font-medium text-dim">
+        projects/ <span class="text-faint">{projects.length}</span>{" "}
+        <span class="note note-inline">newest at the top</span>
+      </h2>
+      <YearGraph projects={projects} ideas={ideas} notes={timelineNotes} />
     </section>
-
-    {
-      ideas.length > 0 && (
-        <section id="ideas" data-boot-section class="flex scroll-mt-8 flex-col gap-4">
-          <h2 data-boot-item class="text-sm font-medium text-dim">
-            ideas/ <span class="note note-inline">not built yet, maybe never</span>
-          </h2>
-          <ul class="flex flex-col gap-2.5 text-muted">
-            {ideas.map((idea) => (
-              <li data-boot-item class="flex items-center gap-3.5">
-                <Sprite src="/sprites/idea.png" size={24} />
-                <span>
-                  {idea.data.title}
-                  {idea.data.note && <>{" "}<span class="note note-inline">{idea.data.note}</span></>}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )
-    }
   </div>
 </BaseLayout>
-
-<script>
-  // Runs on every visit of this page (first load and in-page navigation).
-  document.addEventListener("astro:page-load", () => {
-    const buttons = document.querySelectorAll<HTMLButtonElement>("[data-filter]");
-    const rows = document.querySelectorAll<HTMLElement>("[data-category]");
-    const count = document.querySelector<HTMLElement>("[data-count]");
-
-    for (const button of buttons) {
-      button.addEventListener("click", () => {
-        const filter = button.dataset.filter;
-        for (const b of buttons) b.setAttribute("aria-pressed", String(b === button));
-        let shown = 0;
-        for (const row of rows) {
-          const visible = filter === "all" || row.dataset.category === filter;
-          row.hidden = !visible;
-          if (visible) shown++;
-        }
-        if (count) count.textContent = String(shown);
-      });
-    }
-  });
-</script>

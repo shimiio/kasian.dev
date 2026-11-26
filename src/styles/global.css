@@ -282,59 +282,20 @@ html {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .08 0 0 0 0 .05 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
 }
 
-/* ── Project row: flips to paper on hover, like a terminal selection ── */
+/* ── Project entry on the home timeline: on hover the project's colour
+   (--row-p) shows through, like a selected line in kel's sidebar. ── */
 .row {
   color: var(--color-fg);
   --row-muted: var(--color-muted);
   --row-dim: var(--color-dim);
-  --row-acc: var(--color-accent);
-}
-
-.row {
   --row-acc: var(--row-p, var(--color-accent));
 }
 
 .row:hover,
 .row:focus-visible {
-  background: var(--color-paper);
-  color: var(--color-ink);
-  --row-muted: var(--color-ink-soft);
-  --row-dim: var(--color-ink-dim);
-  --row-acc: var(--row-p-ink, var(--color-accent-ink));
-}
-
-/* ROW_HOVER = "tint": the project's colour shows through, text stays light. */
-.row.row-tint:hover,
-.row.row-tint:focus-visible {
   background: color-mix(in srgb, var(--row-p, var(--color-accent)) 13%, transparent);
-  color: var(--color-fg);
   --row-muted: var(--color-fg-soft);
   --row-dim: var(--color-muted);
-  --row-acc: var(--row-p, var(--color-accent));
-}
-
-/* ── "latest" card, LATEST_STYLE = "tint": dark glass tinted with the
-   project's colour (--p; --p-tint, its backdrop colour, for the surface). ── */
-.latest-tint {
-  background: color-mix(in srgb, var(--p-tint) 10%, rgb(255 255 255 / 0.02));
-  color: var(--color-fg);
-  transition: background-color 0.2s ease;
-}
-
-.latest-tint:hover,
-.latest-tint:focus-visible {
-  background: color-mix(in srgb, var(--p-tint) 15%, rgb(255 255 255 / 0.02));
-}
-
-.latest-tint-sprite {
-  background: color-mix(in srgb, var(--p-tint) 12%, rgb(0 0 0 / 0.3));
-}
-
-/* ── Filter buttons ─────────────────────────────────────────── */
-.filter[aria-pressed="true"] {
-  background: var(--color-paper);
-  border-color: var(--color-paper);
-  color: var(--color-ink);
 }
 
 /* ── Story (MDX body of a project) ──────────────────────────── */

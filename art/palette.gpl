@@ -1,0 +1,28 @@
+GIMP Palette
+Name: kasian.dev sprites
+Columns: 5
+#
+ 23  23  28	ink — outline
+ 42  42  51	shade
+ 91  97 109	steel
+154 160 171	grey
+232 230 227	paper
+184 134  42	spot dark (sun, lamp, coin)
+255 210  90	spot
+180  71  31	kel dark
+255 138  61	kel
+255 192 138	kel light
+ 79 122  31	pare dark (pear skin)
+143 191  58	pare (pear skin)
+200 226 122	pare light (pear skin)
+242 232 196	pear flesh
+216 201 143	pear flesh shade
+133  92  16	stem
+ 23 128 111	esp dark
+ 63 224 197	esp
+180 247 236	esp light
+ 47 111 191	bob dark
+ 90 169 255	bob
+191 224 255	bob light
+255 240 176	idea light
+255 122 138	pink (nose, ears)

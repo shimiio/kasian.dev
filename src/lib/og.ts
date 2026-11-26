@@ -8,12 +8,15 @@
 import { readFile } from "node:fs/promises";
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
+import sharp from "sharp";
 
 const W = 1200;
 const H = 630;
 const PAD = 72;
 const SPRITE_BOX = 216;
 const GAP = 56;
+const BIG_SPRITE = 168; // 12 px art × 14
+const SMALL_SPRITE = 36; // × 3
 const BG = [12, 12, 14]; // --color-bg
 const FG = "#e8e6e3";
 const DIM = "#8b8b93";
@@ -88,11 +91,18 @@ export interface OgCard {
   sprites?: string[];
 }
 
-const spriteUri = async (path: string) => dataUri(await readFile(`public${path}`, "utf8"));
+// Sprites may be SVG (drafts) or PNG (exported from Aseprite). resvg smooths
+// a scaled PNG, so a PNG is enlarged here first, pixel for pixel.
+const spriteUri = async (path: string, size: number) => {
+  const file = await readFile(`public${path}`);
+  if (!path.endsWith(".png")) return dataUri(file.toString("utf8"));
+  const png = await sharp(file).resize(size, size, { kernel: "nearest" }).png().toBuffer();
+  return `data:image/png;base64,${png.toString("base64")}`;
+};
 
 export async function ogImage(card: OgCard): Promise<Buffer> {
-  const big = card.sprite ? await spriteUri(card.sprite) : undefined;
-  const row = await Promise.all((card.sprites ?? []).map(spriteUri));
+  const big = card.sprite ? await spriteUri(card.sprite, BIG_SPRITE) : undefined;
+  const row = await Promise.all((card.sprites ?? []).map((s) => spriteUri(s, SMALL_SPRITE)));
 
   const tile = (src: string, box: number, sprite: number) =>
     h(
@@ -119,7 +129,7 @@ export async function ogImage(card: OgCard): Promise<Buffer> {
       h(
         "div",
         { display: "flex", alignItems: "center", gap: GAP },
-        ...(big ? [tile(big, SPRITE_BOX, 168)] : []),
+        ...(big ? [tile(big, SPRITE_BOX, BIG_SPRITE)] : []),
         h(
           "div",
           { display: "flex", flexDirection: "column", gap: 24, width: W - PAD * 2 - (big ? SPRITE_BOX + GAP : 0) },
@@ -136,7 +146,7 @@ export async function ogImage(card: OgCard): Promise<Buffer> {
           h("span", { fontWeight: 700, color: FG }, "kasian.dev"),
           ...(card.meta ? [h("span", { color: card.accent ?? card.colour }, card.meta)] : []),
         ),
-        h("div", { display: "flex", gap: 12 }, ...row.map((src) => tile(src, 64, 36))),
+        h("div", { display: "flex", gap: 12 }, ...row.map((src) => tile(src, 64, SMALL_SPRITE))),
       ),
     ),
   );

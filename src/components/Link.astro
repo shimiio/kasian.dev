@@ -1,0 +1,12 @@
+---
+/**
+ * A link in a project story (MDX `a`): links to other sites open in a new
+ * tab, like the rest of the site. Astro's markdown processor does not run
+ * rehype plugins, so this is done here rather than in astro.config.mjs.
+ */
+import { external } from "../config";
+
+const { href = "", ...rest } = Astro.props;
+---
+
+<a href={href} {...rest} {...external(href)}><slot /></a>

@@ -11,7 +11,7 @@
 import type { CollectionEntry } from "astro:content";
 import { CATEGORY_LABEL } from "../lib/categories";
 import { type GraphRow, graphRows, monthIndex, monthName, monthYear } from "../lib/timeline";
-import { homeColour, projectAccent, projectUrl, projectWhen, type Project, spriteTransition } from "../lib/projects";
+import { projectAccent, projectUrl, projectWhen, type Project, spriteTransition } from "../lib/projects";
 import Sprite from "./Sprite.astro";
 import StatusMark from "./StatusMark.astro";
 
@@ -87,7 +87,7 @@ const lastRow = rows.length - 1;
             <i class="yg-spine" style={i === lastRow ? "top: 0; height: var(--node-y)" : "top: 0; bottom: 0"} />
             {row.lanes.map((l, x) => {
               if (!l.span) return null;
-              const c = homeColour(l.span.project);
+              const c = projectAccent(l.span.project);
               const top = l.up || !l.node ? "0" : "var(--node-y)";
               const bottom = l.down || !l.node ? "0" : "calc(100% - var(--node-y))";
               return (
@@ -111,18 +111,17 @@ const lastRow = rows.length - 1;
             ))}
             {row.starts.map((s) => (
               <span class="text-sm text-faint">
-                <span style={`color: ${homeColour(s.project)}`}>{s.project.data.title}</span> started
+                <span style={`color: ${projectAccent(s.project)}`}>{s.project.data.title}</span> started
               </span>
             ))}
             {row.ends.map((s) => {
               const p = s.project;
               const d = p.data;
-              const c = homeColour(p);
+              const c = projectAccent(p);
               return (
                 <a
                   href={projectUrl(p)}
                   data-vim-stop
-                  data-live-accent={projectAccent(p)}
                   style={`--row-p: ${c}`}
                   class="row yg-entry px-corners"
                 >

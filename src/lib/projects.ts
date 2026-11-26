@@ -1,5 +1,4 @@
 import { getCollection, type CollectionEntry } from "astro:content";
-import { HOME_PROJECT_COLOURS, SITE_ACCENT_STYLE } from "./experiments";
 
 export type Project = CollectionEntry<"projects">;
 
@@ -38,16 +37,10 @@ export const plural = (n: number, word: string) =>
   `${n} ${word}${n === 1 ? "" : "s"}`;
 
 /** Site accent; also the fallback for projects without their own colour. */
-export const SITE_ACCENT = SITE_ACCENT_STYLE === "neutral" ? "#e8e6e3" : "#b6f36a";
+export const SITE_ACCENT = "#e8e6e3";
 
 /** Background colour on pages that are not a project (home, 404): a cool,
  *  almost neutral grey, so a project's own colour stands out when you enter it. */
 export const SITE_BACKDROP = "#9db0cc"; // cool steel grey
 
 export const projectAccent = (p: Project) => p.data.accent ?? SITE_ACCENT;
-
-/** A project's colour outside its own page (timeline, footer tiles): neutral
- *  without HOME_PROJECT_COLOURS. */
-const NEUTRAL = "#e8e6e3";
-export const homeColour = (p: Project) => (HOME_PROJECT_COLOURS ? projectAccent(p) : NEUTRAL);
-

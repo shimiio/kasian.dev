@@ -41,7 +41,7 @@ const projects = defineCollection({
       .string()
       .regex(/^#[0-9a-fA-F]{6}$/, "backdrop must be a #rrggbb colour")
       .optional(),
-    /** Optional 2–3 line summary shown on paper above the story. */
+    /** Optional 2–3 line summary, shown under the title instead of the tagline. */
     tldr: z.string().optional(),
     links: z
       .object({

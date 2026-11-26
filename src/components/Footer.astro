@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { external, LINKS, SITE } from "../config";
-import { getProjects, homeColour, plural, projectAccent, projectUrl } from "../lib/projects";
+import { getProjects, plural, projectAccent, projectUrl } from "../lib/projects";
 import Sprite from "./Sprite.astro";
 
 const projects = await getProjects();
@@ -31,8 +31,7 @@ const links = [
             href={projectUrl(p)}
             aria-label={p.data.title}
             title={p.data.title}
-            data-live-accent={projectAccent(p)}
-            style={`--tile: ${homeColour(p)}`}
+            style={`--tile: ${projectAccent(p)}`}
             class="tile px-corners flex size-12 items-center justify-center [--px:3px]"
           >
             <Sprite src={p.data.sprite} size={24} />

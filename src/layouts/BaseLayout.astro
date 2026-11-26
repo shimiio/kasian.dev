@@ -18,15 +18,7 @@ import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import { SITE } from "../config";
 import { arrowCursor, handCursor } from "../lib/cursors";
-import {
-  BACKGROUND,
-  CURSOR_PROJECT_COLOUR,
-  CUSTOM_CURSOR,
-  HOME_BACKDROP,
-  NOTES,
-  SITE_ACCENT_STYLE,
-} from "../lib/experiments";
-import { getProjects, projectAccent, SITE_ACCENT, SITE_BACKDROP } from "../lib/projects";
+import { SITE_BACKDROP } from "../lib/projects";
 
 interface Props {
   title?: string;
@@ -42,48 +34,23 @@ interface Props {
 }
 
 const { title, description = SITE.description, accent, backdrop, boot, ogImage = "/og/index.png" } = Astro.props;
-const pageAccent = accent ?? SITE_ACCENT;
-const projects = await getProjects();
+// Background field colour: on a project page its backdrop (or accent), else
+// a near-neutral grey.
+const pageBackdrop = backdrop ?? accent ?? SITE_BACKDROP;
+// On a project page its colour becomes the accent (elsewhere it is off-white,
+// see global.css).
+const accentStyle = accent ? `--color-accent: ${accent};` : undefined;
 
-// Background field colours (space-separated list). On a project page: its
-// backdrop or accent colour. Elsewhere (HOME_BACKDROP): every project's colour,
-// taking turns, or a near-neutral grey.
-const projectColours = [
-  ...new Set(projects.flatMap((p) => p.data.backdrop ?? p.data.accent ?? [])),
-];
-const pageBackdrop =
-  backdrop ??
-  accent ??
-  (HOME_BACKDROP === "mix" && projectColours.length ? projectColours.join(" ") : SITE_BACKDROP);
-// On a project page its colour becomes the accent; accent-ink (accent text
-// on paper) is a darkened version of it. With a neutral site colour, other
-// pages get off-white, and plain ink on paper.
-const accentStyle = accent
-  ? `--color-accent: ${accent}; --color-accent-ink: color-mix(in oklab, ${accent} 45%, #000);`
-  : SITE_ACCENT_STYLE === "neutral"
-    ? `--color-accent: ${SITE_ACCENT}; --color-accent-ink: var(--color-ink);`
-    : undefined;
-
-// Pixel mouse cursors: a neutral arrow and hand everywhere; over a project
-// (anything with data-live-accent) the hand takes the project's colour.
-const cursorCss = await (async () => {
-  if (!CUSTOM_CURSOR) return "";
-  const accents = [...new Set([SITE_ACCENT, ...projects.map(projectAccent)])];
-  const neutral = "#e8e6e3";
-  return [
-    `:root{--cursor-arrow:${arrowCursor(neutral)};--cursor-hand:${handCursor(neutral)}}`,
-    ...(CURSOR_PROJECT_COLOUR ? accents : []).map(
-      (c) => `[data-live-accent="${c}"]{cursor:${handCursor(c)}}`,
-    ),
-  ].join(" ");
-})();
+// Pixel mouse cursors: a neutral arrow and hand (src/lib/cursors.ts).
+const neutral = "#e8e6e3";
+const cursorCss = `:root{--cursor-arrow:${arrowCursor(neutral)};--cursor-hand:${handCursor(neutral)}}`;
 
 const fullTitle = title ? `${title} · ${SITE.domain}` : `${SITE.name} · ${SITE.domain}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
-<html lang="en" data-boot={boot} data-notes={NOTES} data-accent={pageAccent} data-backdrop={pageBackdrop} style={accentStyle}>
+<html lang="en" data-boot={boot} data-backdrop={pageBackdrop} style={accentStyle}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -113,13 +80,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <!-- In-page navigation: links swap the page without a full reload, with
          view transitions in every browser that has them (Firefox too). -->
     <ClientRouter />
-    <!-- First load only: start the background at this page's colour. -->
-    <script is:inline>
-      document.documentElement.style.setProperty(
-        "--live-accent",
-        document.documentElement.dataset.backdrop.split(" ")[0],
-      );
-    </script>
     <!-- Boot animation gate (see src/scripts/boot.ts): adds html.booting before
          the page is painted, so the hidden parts never flash. On first load
          right here; after an in-page navigation on astro:after-swap, which
@@ -143,31 +103,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         document.addEventListener("astro:after-swap", gate);
       })();
     </script>
-    {cursorCss && <style is:inline set:html={cursorCss} />}
+    <style is:inline set:html={cursorCss} />
   </head>
   <body>
     <!-- Persisted across navigations: the background keeps moving and only
          its colour changes. -->
     <div class="backdrop" aria-hidden="true" transition:persist="backdrop">
-      {
-        BACKGROUND === "pixels" ? (
-          <canvas class="pixel-field" />
-        ) : (
-          <>
-            <span />
-            <span />
-            <span />
-          </>
-        )
-      }
+      <canvas class="pixel-field"></canvas>
     </div>
-    <script is:inline>
-      // Drift phase from the wall clock (soft variant), set once on first load.
-      document.currentScript.previousElementSibling.style.setProperty(
-        "--drift-t",
-        `-${(Date.now() / 1000) % 3600}s`,
-      );
-    </script>
     <div class="glass window mx-auto flex min-h-dvh max-w-[960px] flex-col gap-18 px-5 pt-10 sm:px-6 pb-16">
       <Header />
       <main>
@@ -183,14 +126,4 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   import "../scripts/pixel-field";
   import "../scripts/spinners";
   import "../scripts/vim-keys";
-
-  // --live-accent (a registered <color> with a CSS transition; used by the
-  // "soft" background) follows the page's first backdrop colour. After a page
-  // swap <html> gets the new page's attributes, which wipes the inline value:
-  // set it again right away, so it fades from where it was. The pixel field
-  // reads data-backdrop itself and fades its colours in JS.
-  const root = document.documentElement;
-  document.addEventListener("astro:after-swap", () => {
-    root.style.setProperty("--live-accent", (root.dataset.backdrop ?? "").split(" ")[0]);
-  });
 </script>

@@ -80,10 +80,10 @@ const filters = [
           <ul class="flex flex-col gap-2.5 text-muted">
             {ideas.map((idea) => (
               <li data-boot-item class="flex items-center gap-3.5">
-                <Sprite src="/sprites/idea.svg" size={24} />
+                <Sprite src="/sprites/idea.png" size={24} />
                 <span>
                   {idea.data.title}
-                  {idea.data.note && <span class="note note-inline"> {idea.data.note}</span>}
+                  {idea.data.note && <>{" "}<span class="note note-inline">{idea.data.note}</span></>}
                 </span>
               </li>
             ))}

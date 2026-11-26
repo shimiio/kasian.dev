@@ -1,6 +1,18 @@
 [
   {
-    "id": "todo-idea",
-    "title": "[TODO: an idea you keep coming back to]"
+    "id": "booking-app",
+    "title": "an offline booking app for my mom's clients",
+    "note": "no internet needed"
+  },
+  {
+    "id": "gesture-led",
+    "title": "a hand gesture that switches an LED on an esp32",
+    "note": "one finger, one blink; two fingers, two blinks"
+  },
+  {
+    "id": "page-reader",
+    "title": "a browser extension that reads a page for me",
+    "note": "a summary with the key parts highlighted, because walls of text wear me out"
   }
 ]
+

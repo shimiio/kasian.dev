@@ -16,17 +16,19 @@ links:
 ---
 ## why a subscription manager
 
-**I wanted to work in Austria, so I picked the stack first: ASP.NET and React.** After about a week of comparing options, it looked like the most popular combo there. (It is, just mostly not at junior level.) The idea had to be practical but simple to reason about, so it became a tool for my own monthly payments. Before starting, I spent two weeks learning to set it all up, and wrote it down as a [starter template](https://github.com/shimiio/dotnet-react-starter) to build pare on.
+**I wanted to work in Austria, so I picked the stack first: ASP.NET and React.** After about a week of comparing options, it looked like the most popular combo there. (It is, just mostly not at junior level.) I wanted something practical, but simple, so it became a tool for my own monthly payments. Before starting, I spent two weeks learning to set it all up, and wrote it down as a [starter template](https://github.com/shimiio/dotnet-react-starter) to build pare on.
 
 ## over-engineered on purpose
 
-**From day one I went with Clean Architecture, with two weeks of ASP.NET behind me** and a lot of confidence from C++. Later I added CQRS on top. For a project like this it's total overkill, and that was the point: I wanted to know these things by living with them. Every task went into Linear, because my weather app had taught me that tasks in a notepad get lost.
+**From day one I went with Clean Architecture, with two weeks of ASP.NET behind me** and a lot of confidence from C++. Later I added CQRS on top. For a project like this it's total overkill, and that was the point. I wanted to learn them by actually using them. Every task went into Linear, because my weather app had taught me that tasks in a notepad get lost.
 
 It partly paid off. After a C# talk at a meetup I stayed to ask the speaker questions, and everything I knew came from this project, not from a book. It also showed me the pain: to change one thing, you touch ten files.
 
 ## a server inside my laptop
 
-**I had no idea how to deploy a backend.** Then YouTube served me a random DevOps video: how infrastructure grows from one person to a big company. I didn't even know you could just rent your own server, and after that, free hosting was off the table. Reading up on VPS, I noticed a familiar name, Hetzner: a senior developer I know had mentioned it a year earlier, so that's what I picked. I'd never set up a server, so first I built a pretend VPS in VirtualBox to practice on. I even faked DNS so it had a real name, not a local IP.
+**I had no idea how to deploy a backend.** Then YouTube served me a random DevOps video: how infrastructure grows from one person to a big company. I didn't even know you could just rent your own server, and after that, free hosting was off the table. Reading up on VPS, I noticed a familiar name, Hetzner. A senior developer I know had mentioned it a year earlier, so that's what I picked.
+
+I'd never set up a server, so first I built a pretend VPS in VirtualBox to practice on. I even faked DNS so it had a real name, not a local IP.
 
 ## hacking it myself
 
@@ -34,7 +36,7 @@ It partly paid off. After a C# talk at a meetup I stayed to ask the speaker ques
 
 ## written by hand
 
-**I wrote pare without AI agents.** I had no AI subscription at all, only chats in the browser for examples, and I typed the code myself instead of copy-pasting. I used Copilot's agent just a few times: when I was desperate over a bug, and for the charts, which I didn't know how to build. It made a working mock, and that amazed me: the first time an agent really built something for me. [kel](/projects/kel/) went the other way.
+**I wrote pare without AI agents.** I had no AI subscription at all, only chats in the browser for examples, and I typed the code myself instead of copy-pasting. I used Copilot's agent just a few times: when I was desperate over a bug, and for the charts, which I didn't know how to build. It made a working mock, and that amazed me. It was the first time an agent really built something for me. [kel](/projects/kel/) went the other way.
 
 Once pare was done, I let an agent in for the extras: it made the site work on phones, and it will do the coming redesign. The base build, the whole project, is mine.
 

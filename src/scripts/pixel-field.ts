@@ -12,8 +12,8 @@
 const CELL = 8; // size of one "pixel" in CSS px
 const FPS = 12; // low frame rate: cheap, and the motion reads as stepped
 const LEVELS = 4; // brightness steps between background and full tint
-const STRENGTH = 0.2; // max share of colour over the background (0..1): brightness
-const GREY_STRENGTH = 0.3; // the same for a greyish colour (home in "grey"), dull at 0.2
+const STRENGTH = 0.28; // max share of colour over the background (0..1): brightness (was 0.2)
+const GREY_STRENGTH = 0.42; // the same for a greyish colour (home); was 0.3
 const SIZE = 1.25; // glow size
 const SAT_KEEP = 0.55; // saturation of dark pixels vs the colour's own (0 = muddy, 1 = vivid)
 const SOFT = 1.6; // soft cap on overlapping blobs: higher = brighter, flatter peaks

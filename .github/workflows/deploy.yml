@@ -1,0 +1,91 @@
+# Build the site and copy it to the VPS, where Caddy serves it as plain files.
+#
+# Two jobs on purpose: `build` runs npm (every dependency's install scripts)
+# and never sees the deploy key; `deploy` holds the key and runs no npm at all,
+# it only copies the finished dist/ over.
+#
+# Secrets (Settings → Secrets and variables → Actions):
+#   DEPLOY_HOST         server IP or name
+#   DEPLOY_PORT         SSH port, optional (22 when empty)
+#   DEPLOY_USER         the upload-only user, e.g. site-deploy
+#   DEPLOY_SSH_KEY      that user's private key (ed25519, no passphrase)
+#   DEPLOY_KNOWN_HOSTS  the server's host key line, so the runner can't be
+#                       fooled into uploading to a different machine
+#
+# On the server the key is locked to one folder with rrsync, so whatever path
+# is given here lands inside /srv/kasian.dev and nowhere else.
+
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deploy at a time; a newer push waits for the running one instead of
+# cutting it off halfway through the upload.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: dist
+          path: dist/
+
+      - name: Set up SSH
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy
+          chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      # -c compares by content: every build stamps new times on every file,
+      # so without it all files would be sent each time.
+      # --delay-updates and --delete-after: new files are moved into place at
+      # the very end, and old ones go only after that, so a visitor never gets
+      # a page whose CSS or images are already gone.
+      - name: Upload
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          PORT: ${{ secrets.DEPLOY_PORT || '22' }}
+          USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          rsync -rlcz --delete-after --delay-updates --chmod=D755,F644 --itemize-changes \
+            -e "ssh -i ~/.ssh/deploy -p $PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+            dist/ "$USER@$HOST:./"
+
+      - name: Remove the key
+        if: always()
+        run: rm -f ~/.ssh/deploy
